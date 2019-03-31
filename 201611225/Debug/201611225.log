@@ -1,0 +1,10 @@
+﻿  201611225View.cpp
+c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(255): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(256): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(258): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(269): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  201611225.cpp
+  201611225.vcxproj -> C:\Users\theorist\Documents\Visual Studio 2015\Projects\201611225\Debug\201611225.exe
+  201611225.vcxproj -> C:\Users\theorist\Documents\Visual Studio 2015\Projects\201611225\Debug\201611225.pdb (Partial PDB)
