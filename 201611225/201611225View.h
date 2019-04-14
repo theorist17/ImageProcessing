@@ -30,8 +30,11 @@ public:
 
 	// JPEG
 
-	// Intensity histogram
+	// Grayscale
+	int** intensity;
 	int intenHisto[256];
+	int intenEqual[256];
+	int intenSum[256];
 
 // Operations
 public:

@@ -38,6 +38,7 @@ CMy201611225View::CMy201611225View()
 {
 	// TODO: add construction code here
 	rgbBuffer = nullptr;
+	intensity = nullptr;
 	
 }
 
@@ -48,6 +49,13 @@ CMy201611225View::~CMy201611225View()
 		for (int i = 0; i < imgHeight; i++)
 			delete[] rgbBuffer[i];
 		delete[] rgbBuffer;
+	}
+
+	if (intensity != nullptr)
+	{
+		for (int i = 0; i < imgHeight; i++)
+			delete[] intensity[i];
+		delete[] intensity;
 	}
 }
 
@@ -96,11 +104,52 @@ void CMy201611225View::OnDraw(CDC* pDC)
 					pDC->SetPixel(p, RGB(intenBuffer[i][j], intenBuffer[i][j], intenBuffer[i][j]));
 
 				}
+				else if (viewType == 3) 
+				{
+					p.x = j + imgWidth + 10;
+					p.y = i;
+					pDC->SetPixel(p, RGB(intensity[i][j], intensity[i][j], intensity[i][j]));
+
+				}
 				
 			}
 		}
 	}
 
+	if (viewType == 3) {
+		//plot histogram
+		
+		double maxHist = 0.0, maxEqual = 0.0, maxSum = 0.0;
+		for (int i = 0; i < 256; i++) {
+			if (intenHisto[i] > maxHist)
+				maxHist = intenHisto[i];
+			if (intenEqual[i] > maxEqual)
+				maxEqual = intenEqual[i];
+			if (intenSum[i] > maxSum)
+				maxSum = intenSum[i];
+		}
+		for (int i = 0; i < 256; i++)
+		{
+			pDC->MoveTo(imgWidth*2 + 20 + i, 100);
+			pDC->LineTo(imgWidth * 2 + 20 + i, 100 - intenHisto[i] / maxHist * 100);
+		}
+		pDC->MoveTo(imgWidth * 2 + 20, 100);
+		pDC->LineTo(imgWidth * 2 + 20 + 256, 100);
+		for (int i = 0; i < 256; i++)
+		{
+			pDC->MoveTo(imgWidth * 2 + 20 + i, 210);
+			pDC->LineTo(imgWidth * 2 + 20 + i, 210 - intenEqual[i] / maxEqual * 100);
+		}
+		pDC->MoveTo(imgWidth * 2 + 20, 210);
+		pDC->LineTo(imgWidth * 2 + 20 + 256, 210);
+		for (int i = 0; i < 256; i++)
+		{
+			pDC->MoveTo(imgWidth * 2 + 20 + i, 320);
+			pDC->LineTo(imgWidth * 2 + 20 + i, 320 - intenSum[i] / maxSum * 100);
+		}
+		pDC->MoveTo(imgWidth * 2 + 20, 320);
+		pDC->LineTo(imgWidth * 2 + 20 + 256, 320);
+	}
 
 
 }
@@ -213,6 +262,7 @@ void CMy201611225View::OnImageloadBmp()
 	}
 
 	file.Close();
+	viewType = 1;
 	Invalidate(TRUE); // invalidate view
 }
 
@@ -247,7 +297,9 @@ void CMy201611225View::OnTransformRgbtohsi()
 			intenBuffer[i][j] = (r + g + b) / (float)(3 * 255); //intensity
 			float total = r + g + b;
 
-			r = r / total; g = g / total; b = b / total;
+			r = r / total; 
+			g = g / total; 
+			b = b / total;
 			satuBuffer[i][j] = 1 - 3 * (r > g ? (g > b ? b : g) : (r > b ? b : r));
 			if (r == g&&g == b) {
 				hueBuffer[i][j] = 0; satuBuffer[i][j] = 0;
@@ -316,6 +368,7 @@ void CMy201611225View::OnImageloadJpeg()
 	}
 	delete[] pbuf;
 	fclose(fp);
+	viewType = 1;
 	Invalidate(TRUE);
 
 }
@@ -355,17 +408,57 @@ BYTE* CMy201611225View::LoadJpegFromOpenFile(FILE* fp, BITMAPINFOHEADER* pbh, UI
 
 void CMy201611225View::OnTransformHistogramequalization()
 {
-	// getting intensity
+
+	if (intensity != NULL)
+	{
+		for (int i = 0; i < imgHeight; i++)
+			delete[] intensity[i];
+		delete[] intensity;
+	}
+
+	intensity = new int*[imgHeight];
+	for (int i = 0; i < imgWidth; i++)
+	{
+		intensity[i] = new int[imgWidth];
+	}
+
+	
+	// intensity histogram
 	for (int i = 0; i < 256; i++)
+	{
 		intenHisto[i] = 0;
-
-	for (int i = 0; i < imgHeight; i++) {
-		for (int j = 0; j < imgWidth; j++) {
-			int intensity = (rgbBuffer[i][j].rgbBlue + rgbBuffer[i][j].rgbGreen + rgbBuffer[i][j].rgbRed)/3;
-			intenHisto[intensity]++;
+		intenEqual[i] = 0;
+		intenSum[i] = 0;
+	}
+	for (int i = 0; i < imgHeight; i++) 
+	{
+		for (int j = 0; j < imgWidth; j++) 
+		{
+			intensity[i][j] = (rgbBuffer[i][j].rgbBlue + rgbBuffer[i][j].rgbGreen + rgbBuffer[i][j].rgbRed)/3;
+			intenHisto[intensity[i][j]]++;
 		}
-	  }
+	}
 
+	// histogram equalization
 
+	int sum = 0;
+	double scale_factor = 255.0 / (imgHeight*imgWidth);
+	for (int i = 0; i < 256; i++)
+	{
+		sum += intenHisto[i];
+		intenSum[i] = (sum * scale_factor) + 0.5;
+	}
+
+	for (int i = 0; i < imgHeight; i++)
+	{
+		for (int j = 0; j < imgWidth; j++)
+		{
+			intensity[i][j] = intenSum[intensity[i][j]];
+			intenEqual[intensity[i][j]]++;
+		}
+	}
+
+	viewType = 3;
+	Invalidate(TRUE);
 
 }
