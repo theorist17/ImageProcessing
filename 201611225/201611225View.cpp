@@ -29,6 +29,7 @@ BEGIN_MESSAGE_MAP(CMy201611225View, CView)
 	ON_COMMAND(ID_IMAGELOAD_BMP, &CMy201611225View::OnImageloadBmp)
 	ON_COMMAND(ID_TRANSFORM_RGBTOHSI, &CMy201611225View::OnTransformRgbtohsi)
 	ON_COMMAND(ID_IMAGELOAD_JPEG, &CMy201611225View::OnImageloadJpeg)
+	ON_COMMAND(ID_TRANSFORM_HISTOGRAMEQUALIZATION, &CMy201611225View::OnTransformHistogramequalization)
 END_MESSAGE_MAP()
 
 // CMy201611225View construction/destruction
@@ -37,6 +38,7 @@ CMy201611225View::CMy201611225View()
 {
 	// TODO: add construction code here
 	rgbBuffer = nullptr;
+	
 }
 
 CMy201611225View::~CMy201611225View()
@@ -348,4 +350,22 @@ BYTE* CMy201611225View::LoadJpegFromOpenFile(FILE* fp, BITMAPINFOHEADER* pbh, UI
 	pbh->biClrUsed = 0;
 	pbh->biClrImportant = 0;
 	return pbuf;
+}
+
+
+void CMy201611225View::OnTransformHistogramequalization()
+{
+	// getting intensity
+	for (int i = 0; i < 256; i++)
+		intenHisto[i] = 0;
+
+	for (int i = 0; i < imgHeight; i++) {
+		for (int j = 0; j < imgWidth; j++) {
+			int intensity = (rgbBuffer[i][j].rgbBlue + rgbBuffer[i][j].rgbGreen + rgbBuffer[i][j].rgbRed)/3;
+			intenHisto[intensity]++;
+		}
+	  }
+
+
+
 }

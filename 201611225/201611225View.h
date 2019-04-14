@@ -30,6 +30,9 @@ public:
 
 	// JPEG
 
+	// Intensity histogram
+	int intenHisto[256];
+
 // Operations
 public:
 
@@ -60,6 +63,7 @@ public:
 	afx_msg void OnTransformRgbtohsi();
 	afx_msg void OnImageloadJpeg();
 	BYTE* LoadJpegFromOpenFile(FILE* fp, BITMAPINFOHEADER* pbh, UINT* pWidth, UINT* pHeight);
+	afx_msg void OnTransformHistogramequalization();
 };
 
 #ifndef _DEBUG  // debug version in 201611225View.cpp

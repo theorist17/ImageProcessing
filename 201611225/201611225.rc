@@ -149,6 +149,7 @@ BEGIN
     POPUP "Transform"
     BEGIN
         MENUITEM "RGB to HSI",                  ID_TRANSFORM_RGBTOHSI
+        MENUITEM "Histogram Equalization",      ID_TRANSFORM_HISTOGRAMEQUALIZATION
     END
 END
 
