@@ -150,6 +150,24 @@ BEGIN
     BEGIN
         MENUITEM "RGB to HSI",                  ID_TRANSFORM_RGBTOHSI
         MENUITEM "Histogram Equalization",      ID_TRANSFORM_HISTOGRAMEQUALIZATION
+        POPUP "Gaussian Filtering"
+        BEGIN
+            MENUITEM "3*3",                         ID_GAUSSIANFILTERING_3
+            MENUITEM "5*5",                         ID_GAUSSIANFILTERING_5
+            MENUITEM "7*7",                         ID_GAUSSIANFILTERING_7
+        END
+        POPUP "Median Filtering"
+        BEGIN
+            MENUITEM "3*3",                         ID_MEDIANFILTERING_3
+            MENUITEM "5*5",                         ID_MEDIANFILTERING_5
+            MENUITEM "7*7",                         ID_MEDIANFILTERING_7
+        END
+        POPUP "Average Filtering"
+        BEGIN
+            MENUITEM "3*3",                         ID_AVERAGEFILTERING_3
+            MENUITEM "5*5",                         ID_AVERAGEFILTERING_5
+            MENUITEM "7*7",                         ID_AVERAGEFILTERING_7
+        END
     END
 END
 

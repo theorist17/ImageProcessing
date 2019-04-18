@@ -4,7 +4,7 @@
 
 #pragma once
 #include "Jpegfile.h"
-
+#include <algorithm>
 class CMy201611225View : public CView
 {
 protected: // create from serialization only
@@ -32,9 +32,11 @@ public:
 
 	// Grayscale
 	int** intensity;
+	int** intenNext;
 	int intenHisto[256];
 	int intenEqual[256];
 	int intenSum[256];
+	int intenEquisum[256];
 
 // Operations
 public:
@@ -67,6 +69,16 @@ public:
 	afx_msg void OnImageloadJpeg();
 	BYTE* LoadJpegFromOpenFile(FILE* fp, BITMAPINFOHEADER* pbh, UINT* pWidth, UINT* pHeight);
 	afx_msg void OnTransformHistogramequalization();
+	void ReadIntensity();
+	afx_msg void OnGaussianfiltering3();
+	afx_msg void OnMedianfiltering3();
+	afx_msg void OnAveragefiltering3();
+	afx_msg void OnGaussianfiltering5();
+	afx_msg void OnMedianfiltering5();
+	afx_msg void OnAveragefiltering5();
+	afx_msg void OnGaussianfiltering7();
+	afx_msg void OnMedianfiltering7();
+	afx_msg void OnAveragefiltering7();
 };
 
 #ifndef _DEBUG  // debug version in 201611225View.cpp

@@ -30,6 +30,15 @@ BEGIN_MESSAGE_MAP(CMy201611225View, CView)
 	ON_COMMAND(ID_TRANSFORM_RGBTOHSI, &CMy201611225View::OnTransformRgbtohsi)
 	ON_COMMAND(ID_IMAGELOAD_JPEG, &CMy201611225View::OnImageloadJpeg)
 	ON_COMMAND(ID_TRANSFORM_HISTOGRAMEQUALIZATION, &CMy201611225View::OnTransformHistogramequalization)
+	ON_COMMAND(ID_GAUSSIANFILTERING_3, &CMy201611225View::OnGaussianfiltering3)
+	ON_COMMAND(ID_MEDIANFILTERING_3, &CMy201611225View::OnMedianfiltering3)
+	ON_COMMAND(ID_AVERAGEFILTERING_3, &CMy201611225View::OnAveragefiltering3)
+	ON_COMMAND(ID_GAUSSIANFILTERING_5, &CMy201611225View::OnGaussianfiltering5)
+	ON_COMMAND(ID_MEDIANFILTERING_5, &CMy201611225View::OnMedianfiltering5)
+	ON_COMMAND(ID_AVERAGEFILTERING_5, &CMy201611225View::OnAveragefiltering5)
+	ON_COMMAND(ID_GAUSSIANFILTERING_7, &CMy201611225View::OnGaussianfiltering7)
+	ON_COMMAND(ID_MEDIANFILTERING_7, &CMy201611225View::OnMedianfiltering7)
+	ON_COMMAND(ID_AVERAGEFILTERING_7, &CMy201611225View::OnAveragefiltering7)
 END_MESSAGE_MAP()
 
 // CMy201611225View construction/destruction
@@ -39,7 +48,7 @@ CMy201611225View::CMy201611225View()
 	// TODO: add construction code here
 	rgbBuffer = nullptr;
 	intensity = nullptr;
-	
+	intenNext = nullptr;
 }
 
 CMy201611225View::~CMy201611225View()
@@ -56,6 +65,13 @@ CMy201611225View::~CMy201611225View()
 		for (int i = 0; i < imgHeight; i++)
 			delete[] intensity[i];
 		delete[] intensity;
+	}
+
+	if (intenNext != nullptr)
+	{
+		for (int i = 0; i < imgHeight; i++)
+			delete[] intenNext[i];
+		delete[] intenNext;
 	}
 }
 
@@ -75,8 +91,44 @@ void CMy201611225View::OnDraw(CDC* pDC)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
+	
+	if (viewType == 4) {
+		//FILE* fp = fopen("C:\\Users\\theorist\\Documents\\Visual Studio 2015\\Projects\\201611225\\Fig0503 (original_pattern).jpg", "rb");
+		//BITMAPINFOHEADER pbh;
+		//UINT w, h;
+		//BYTE* pbuf = LoadJpegFromOpenFile(fp, &pbh, &w, &h);
+		//imgWidth = (int)w;
+		//imgHeight = (int)h;
 
+		//// assign image to the 2-dimensional array buffer
+		//RGBQUAD** rgbBuff;
+		//rgbBuff = new RGBQUAD*[imgHeight];
+		//for (int i = 0; i < imgHeight; i++)
+		//	rgbBuff[i] = new RGBQUAD[imgWidth];
+
+		//int dw = WIDTHBYTES(imgWidth * 24);
+		//for (int i = 0; i < imgHeight; i++)
+		//{
+		//	for (int j = 0; j < imgWidth; j++)
+		//	{
+		//		rgbBuff[imgHeight - i - 1][j].rgbBlue = pbuf[i*dw + j * 3 + 0];
+		//		rgbBuff[imgHeight - i - 1][j].rgbGreen = pbuf[i*dw + j * 3 + 1];
+		//		rgbBuff[imgHeight - i - 1][j].rgbRed = pbuf[i*dw + j * 3 + 2];
+		//	}
+		//}
+		//for (int i = 0; i < imgHeight; i++)
+		//{
+		//	for (int j = 0; j < imgWidth; j++)
+		//	{
+		//		intensity[i][j] = (rgbBuff[i][j].rgbBlue + rgbBuff[i][j].rgbGreen + rgbBuff[i][j].rgbRed) / 3;
+		//	}
+		//}
+		//delete[] pbuf;
+		//fclose(fp);
+	}
 	// draw image to the view
+
+	int diff = 0;
 	if (rgbBuffer != NULL)
 	{
 		for (int i = 0; i < imgHeight; i++)
@@ -111,15 +163,33 @@ void CMy201611225View::OnDraw(CDC* pDC)
 					pDC->SetPixel(p, RGB(intensity[i][j], intensity[i][j], intensity[i][j]));
 
 				}
-				
+				else if (viewType == 4)
+				{
+					p.x = j + imgWidth + 10;
+					p.y = i;
+					pDC->SetPixel(p, RGB(intenNext[i][j], intenNext[i][j], intenNext[i][j]));
+/*
+					p.x = j + 2 * imgWidth + 20;
+					p.y = i;
+					pDC->SetPixel(p, RGB(intensity[i][j], intensity[i][j], intensity[i][j]));*/
+
+					p.x = j + 2 * imgWidth + 20;
+					p.y = i;
+					pDC->SetPixel(p, RGB(intensity[i][j] - intenNext[i][j], intensity[i][j] - intenNext[i][j], intensity[i][j] - intenNext[i][j]));
+					diff += (intensity[i][j] - intenNext[i][j]);
+				}
 			}
 		}
 	}
 
+	
+	if (viewType == 4 && diff != 0) {
+		diff = diff;
+	}
 	if (viewType == 3) {
 		//plot histogram
 		
-		double maxHist = 0.0, maxEqual = 0.0, maxSum = 0.0;
+		double maxHist = 0.0, maxEqual = 0.0, maxSum = 0.0, maxEquisum = 0.0;
 		for (int i = 0; i < 256; i++) {
 			if (intenHisto[i] > maxHist)
 				maxHist = intenHisto[i];
@@ -127,6 +197,8 @@ void CMy201611225View::OnDraw(CDC* pDC)
 				maxEqual = intenEqual[i];
 			if (intenSum[i] > maxSum)
 				maxSum = intenSum[i];
+			if (intenEquisum[i] > maxEquisum)
+				maxEquisum = intenEquisum[i];
 		}
 		for (int i = 0; i < 256; i++)
 		{
@@ -149,6 +221,13 @@ void CMy201611225View::OnDraw(CDC* pDC)
 		}
 		pDC->MoveTo(imgWidth * 2 + 20, 320);
 		pDC->LineTo(imgWidth * 2 + 20 + 256, 320);
+		for (int i = 0; i < 256; i++)
+		{
+			pDC->MoveTo(imgWidth * 2 + 20 + i, 430);
+			pDC->LineTo(imgWidth * 2 + 20 + i, 430 - intenEquisum[i] / maxEquisum * 100);
+		}
+		pDC->MoveTo(imgWidth * 2 + 20, 430);
+		pDC->LineTo(imgWidth * 2 + 20 + 256, 430);
 	}
 
 
@@ -210,6 +289,19 @@ void CMy201611225View::OnImageloadBmp()
 		for (int i = 0; i < imgHeight; i++)
 			delete[] rgbBuffer[i];
 		delete[] rgbBuffer;
+	}
+	if (intensity != NULL)
+	{
+		for (int i = 0; i < imgHeight; i++)
+			delete[] intensity[i];
+		delete[] intensity;
+	}
+
+	if (intenNext != NULL)
+	{
+		for (int i = 0; i < imgHeight; i++)
+			delete[] intenNext[i];
+		delete[] intenNext;
 	}
 
 	// open file and get image information
@@ -332,6 +424,7 @@ void CMy201611225View::OnTransformRgbtohsi()
 
 void CMy201611225View::OnImageloadJpeg()
 {
+
 	CFileDialog dlg(TRUE, ".jpg", NULL, NULL, "Jpeg File (*.jpg)|*.jpg||");
 	if (IDOK != dlg.DoModal())
 		return;
@@ -341,6 +434,19 @@ void CMy201611225View::OnImageloadJpeg()
 		for (int i = 0; i < imgHeight; i++)
 			delete[] rgbBuffer[i];
 		delete[] rgbBuffer;
+	}
+	if (intensity != NULL)
+	{
+		for (int i = 0; i < imgHeight; i++)
+			delete[] intensity[i];
+		delete[] intensity;
+	}
+
+	if (intenNext != NULL)
+	{
+		for (int i = 0; i < imgHeight; i++)
+			delete[] intenNext[i];
+		delete[] intenNext;
 	}
 
 	FILE* fp = fopen(filename, "rb");
@@ -370,7 +476,6 @@ void CMy201611225View::OnImageloadJpeg()
 	fclose(fp);
 	viewType = 1;
 	Invalidate(TRUE);
-
 }
 
 
@@ -458,7 +563,442 @@ void CMy201611225View::OnTransformHistogramequalization()
 		}
 	}
 
+	sum = 0;
+	for (int i = 0; i < 256; i++)
+	{
+		sum += intenEqual[i];
+		intenEquisum[i] = (sum * scale_factor) + 0.5;
+	}
+
 	viewType = 3;
 	Invalidate(TRUE);
 
+}
+
+void CMy201611225View::ReadIntensity()
+{
+	intensity = new int*[imgHeight];
+	for (int i = 0; i < imgWidth; i++)
+	{
+		intensity[i] = new int[imgWidth];
+	}
+	intenNext = new int*[imgHeight];
+	for (int i = 0; i < imgWidth; i++)
+	{
+		intenNext[i] = new int[imgWidth];
+	}
+
+	for (int i = 0; i < imgHeight; i++)
+	{
+		for (int j = 0; j < imgWidth; j++)
+		{
+			intensity[i][j] = (rgbBuffer[i][j].rgbBlue + rgbBuffer[i][j].rgbGreen + rgbBuffer[i][j].rgbRed) / 3;
+			intenNext[i][j] = 0;
+		}
+	}
+}
+
+void CMy201611225View::OnGaussianfiltering3()
+{
+	ReadIntensity();
+
+	for (int i = 1; i < imgHeight - 1; i++)
+	{
+		for (int j = 1; j < imgWidth - 1; j++)
+		{
+			intenNext[i][j] =
+				intensity[i - 1][j - 1] * (1.0/16) +
+				intensity[i - 1][j] * (1.0 / 8) +
+				intensity[i - 1][j + 1] * (1.0 / 16) +
+				intensity[i][j - 1] * (1.0 / 8) +
+				intensity[i][j] * (1.0 / 4) +
+				intensity[i][j + 1] * (1.0 / 8) +
+				intensity[i + 1][j - 1] * (1.0 / 16) +
+				intensity[i + 1][j] * (1.0 / 8) +
+				intensity[i + 1][j + 1] * (1.0 / 16);
+		}
+	}
+
+	viewType = 4;
+	Invalidate(TRUE);
+}
+
+
+void CMy201611225View::OnMedianfiltering3()
+{
+	ReadIntensity();
+
+	for (int i = 1; i < imgHeight - 1; i++)
+	{
+		for (int j = 1; j < imgWidth - 1; j++)
+		{
+			int arr[9] = { intensity[i-1][j-1], intensity[i-1][j], intensity[i-1][j+1],
+						intensity[i][j-1], intensity[i][j], intensity[i][j+1],
+						intensity[i+1][j-1], intensity[i+1][j], intensity[i+1][j+1] };
+			std::sort(arr, arr + 9);
+			intenNext[i][j] = arr[4];
+		}
+	}
+
+	viewType = 4;
+	Invalidate(TRUE);
+}
+
+
+void CMy201611225View::OnAveragefiltering3()
+{
+	ReadIntensity();
+
+	for (int i = 1; i < imgHeight - 1; i++)
+	{
+		for (int j = 1; j < imgWidth - 1; j++)
+		{
+			intenNext[i][j] =
+				( intensity[i - 1][j - 1] +
+				intensity[i - 1][j] +
+				intensity[i - 1][j + 1] +
+				intensity[i][j - 1] +
+				intensity[i][j] +
+				intensity[i][j + 1] +
+				intensity[i + 1][j - 1] +
+				intensity[i + 1][j] +
+				intensity[i + 1][j + 1] )/9;
+		}
+	}
+
+	viewType = 4;
+	Invalidate(TRUE);
+}
+
+
+void CMy201611225View::OnGaussianfiltering5()
+{
+	ReadIntensity();
+
+	for (int i = 2; i < imgHeight - 2; i++)
+	{
+		for (int j = 2; j < imgWidth - 2; j++)
+		{
+			intenNext[i][j] =
+				(intensity[i - 2][j - 2] * 1+
+				intensity[i - 2][j - 1] * 4+
+				intensity[i - 2][j] * 7+
+				intensity[i - 2][j + 1] *4 +
+				intensity[i - 2][j + 2] * 1+
+				intensity[i - 1][j - 2] *4+
+				intensity[i - 1][j - 1] *16+
+				intensity[i - 1][j] *26+
+				intensity[i - 1][j + 1]*16 +
+				intensity[i - 1][j + 2]*4 +
+				intensity[i][j - 2]*7 +
+				intensity[i][j - 1]*26 +
+				intensity[i][j] *41+
+				intensity[i][j + 1]*26 +
+				intensity[i][j + 2]*7 +
+				intensity[i + 1][j - 2] *4+
+				intensity[i + 1][j - 1] *16+
+				intensity[i + 1][j] *26+
+				intensity[i + 1][j + 1]*16 +
+				intensity[i + 1][j + 2] *4+
+				intensity[i + 2][j - 2] *1+
+				intensity[i + 2][j - 1] *4+
+				intensity[i + 2][j]*7 +
+				intensity[i + 2][j + 1]*4 +
+				intensity[i + 2][j + 2]*1)/273.0;
+		}
+	}
+
+	viewType = 4;
+	Invalidate(TRUE);
+}
+
+
+void CMy201611225View::OnMedianfiltering5()
+{
+	ReadIntensity();
+
+	for (int i = 2; i < imgHeight - 2; i++)
+	{
+		for (int j = 2; j < imgWidth - 2; j++)
+		{
+			int arr[25] = { intensity[i - 2][j - 2],
+				intensity[i - 2][j - 1],
+				intensity[i - 2][j],
+				intensity[i - 2][j + 1],
+				intensity[i - 2][j + 2],
+				intensity[i - 1][j - 2],
+				intensity[i - 1][j - 1],
+				intensity[i - 1][j],
+				intensity[i - 1][j + 1],
+				intensity[i - 1][j + 2],
+				intensity[i][j - 2],
+				intensity[i][j - 1],
+				intensity[i][j],
+				intensity[i][j + 1],
+				intensity[i][j + 2],
+				intensity[i + 1][j - 2],
+				intensity[i + 1][j - 1],
+				intensity[i + 1][j],
+				intensity[i + 1][j + 1],
+				intensity[i + 1][j + 2],
+				intensity[i + 2][j - 2],
+				intensity[i + 2][j - 1],
+				intensity[i + 2][j],
+				intensity[i + 2][j + 1],
+				intensity[i + 2][j + 2] };
+			std::sort(arr, arr + 25);
+			intenNext[i][j] = arr[12];
+		}
+	}
+
+	viewType = 4;
+	Invalidate(TRUE);
+}
+
+
+void CMy201611225View::OnAveragefiltering5()
+{
+	ReadIntensity();
+
+	for (int i = 2; i < imgHeight - 2; i++)
+	{
+		for (int j = 2; j < imgWidth - 2; j++)
+		{
+			intenNext[i][j] =
+				(intensity[i - 2][j - 2] +
+					intensity[i - 2][j - 1] +
+					intensity[i - 2][j] +
+					intensity[i - 2][j + 1] +
+					intensity[i - 2][j + 2] +
+					intensity[i - 1][j - 2] +
+					intensity[i - 1][j - 1] +
+					intensity[i - 1][j] +
+					intensity[i - 1][j + 1] +
+					intensity[i - 1][j + 2] +
+					intensity[i][j - 2] +
+					intensity[i][j - 1] +
+					intensity[i][j] +
+					intensity[i][j + 1] +
+					intensity[i][j + 2] +
+					intensity[i + 1][j - 2] +
+					intensity[i + 1][j - 1] +
+					intensity[i + 1][j] +
+					intensity[i + 1][j + 1] +
+					intensity[i + 1][j + 2] +
+					intensity[i + 2][j - 2] +
+					intensity[i + 2][j - 1] +
+					intensity[i + 2][j] +
+					intensity[i + 2][j + 1] +
+					intensity[i + 2][j + 2]) / 25.0;
+		}
+	}
+
+	viewType = 4;
+	Invalidate(TRUE);
+}
+
+
+void CMy201611225View::OnGaussianfiltering7()
+{
+	ReadIntensity();
+
+	for (int i = 3; i < imgHeight - 3; i++)
+	{
+		for (int j = 3; j < imgWidth - 3; j++)
+		{
+			intenNext[i][j] =
+				(
+					intensity[i - 3][j - 3] * 0+
+					intensity[i - 3][j - 2] * 0+
+					intensity[i - 3][j - 1] *1+
+					intensity[i - 3][j] *2+
+					intensity[i - 3][j + 1] *1+
+					intensity[i - 3][j + 2] *0+
+					intensity[i - 3][j + 3] *0+
+					intensity[i - 2][j - 3] *0+
+					intensity[i - 2][j - 2] *3+
+					intensity[i - 2][j - 1] *13+
+					intensity[i - 2][j] *22+
+					intensity[i - 2][j + 1] *13+
+					intensity[i - 2][j + 2] *3+
+					intensity[i - 2][j + 3] *0+
+					intensity[i - 1][j - 3] *1+
+					intensity[i - 1][j - 2] *13+
+					intensity[i - 1][j - 1] *59+
+					intensity[i - 1][j] *97+
+					intensity[i - 1][j + 1] *59+
+					intensity[i - 1][j + 2] *13+
+					intensity[i - 1][j + 3] *1+
+					intensity[i][j - 3] *2+
+					intensity[i][j - 2] *22+
+					intensity[i][j - 1] *97+
+					intensity[i][j] *159+
+					intensity[i][j + 1] *97+
+					intensity[i][j + 2] *22+
+					intensity[i][j + 3] *2+
+					intensity[i + 1][j - 3] *1+
+					intensity[i + 1][j - 2] *13+
+					intensity[i + 1][j - 1] *59+
+					intensity[i + 1][j] *97+
+					intensity[i + 1][j + 1] *59+
+					intensity[i + 1][j + 2] *13+
+					intensity[i + 1][j + 3] *1+
+					intensity[i + 2][j - 3] *0+
+					intensity[i + 2][j - 2] *3+
+					intensity[i + 2][j - 1] *13+
+					intensity[i + 2][j] *22+
+					intensity[i + 2][j + 1] *13+
+					intensity[i + 2][j + 2] *3+
+					intensity[i + 2][j + 3] *0+
+					intensity[i + 3][j - 3] *0+
+					intensity[i + 3][j - 2] *0+
+					intensity[i + 3][j - 1] *1+
+					intensity[i + 3][j] *2+
+					intensity[i + 3][j + 1] *1+
+					intensity[i + 3][j + 2] *0+
+					intensity[i + 3][j + 3]*0
+					)/1003.0;
+		}
+	}
+
+	viewType = 4;
+	Invalidate(TRUE);
+}
+
+
+void CMy201611225View::OnMedianfiltering7()
+{
+	ReadIntensity();
+
+	for (int i = 3; i < imgHeight - 3; i++)
+	{
+		for (int j = 3; j < imgWidth - 3; j++)
+		{
+			int arr[49] = {
+				intensity[i - 3][j - 3],
+				intensity[i - 3][j - 2],
+				intensity[i - 3][j - 1],
+				intensity[i - 3][j],
+				intensity[i - 3][j + 1],
+				intensity[i - 3][j + 2],
+				intensity[i - 3][j + 3],
+				intensity[i - 2][j - 3],
+				intensity[i - 2][j - 2],
+				intensity[i - 2][j - 1],
+				intensity[i - 2][j],
+				intensity[i - 2][j + 1],
+				intensity[i - 2][j + 2],
+				intensity[i - 2][j + 3],
+				intensity[i - 1][j - 3],
+				intensity[i - 1][j - 2],
+				intensity[i - 1][j - 1],
+				intensity[i - 1][j],
+				intensity[i - 1][j + 1],
+				intensity[i - 1][j + 2],
+				intensity[i - 1][j + 3],
+				intensity[i][j - 3],
+				intensity[i][j - 2],
+				intensity[i][j - 1],
+				intensity[i][j],
+				intensity[i][j + 1],
+				intensity[i][j + 2],
+				intensity[i][j + 3],
+				intensity[i + 1][j - 3],
+				intensity[i + 1][j - 2],
+				intensity[i + 1][j - 1],
+				intensity[i + 1][j],
+				intensity[i + 1][j + 1],
+				intensity[i + 1][j + 2],
+				intensity[i + 1][j + 3],
+				intensity[i + 2][j - 3],
+				intensity[i + 2][j - 2],
+				intensity[i + 2][j - 1],
+				intensity[i + 2][j],
+				intensity[i + 2][j + 1],
+				intensity[i + 2][j + 2],
+				intensity[i + 2][j + 3],
+				intensity[i + 3][j - 3],
+				intensity[i + 3][j - 2],
+				intensity[i + 3][j - 1],
+				intensity[i + 3][j],
+				intensity[i + 3][j + 1],
+				intensity[i + 3][j + 2],
+				intensity[i + 3][j + 3]
+			};
+			
+			std::sort(arr, arr + 49);
+			intenNext[i][j] = arr[24];
+		}
+	}
+
+	viewType = 4;
+	Invalidate(TRUE);
+}
+
+
+void CMy201611225View::OnAveragefiltering7()
+{
+	ReadIntensity();
+
+	for (int i = 3; i < imgHeight - 3; i++)
+	{
+		for (int j = 3; j < imgWidth - 3; j++)
+		{
+			intenNext[i][j] =
+				(
+					intensity[i - 3][j - 3] +
+					intensity[i - 3][j - 2] +
+					intensity[i - 3][j - 1] +
+					intensity[i - 3][j] +
+					intensity[i - 3][j + 1] +
+					intensity[i - 3][j + 2] +
+					intensity[i - 3][j + 3] +
+					intensity[i - 2][j - 3] +
+					intensity[i - 2][j - 2] +
+					intensity[i - 2][j - 1] +
+					intensity[i - 2][j] +
+					intensity[i - 2][j + 1] +
+					intensity[i - 2][j + 2] +
+					intensity[i - 2][j + 3] +
+					intensity[i - 1][j - 3] +
+					intensity[i - 1][j - 2] +
+					intensity[i - 1][j - 1] +
+					intensity[i - 1][j] +
+					intensity[i - 1][j + 1] +
+					intensity[i - 1][j + 2] +
+					intensity[i - 1][j + 3] +
+					intensity[i][j - 3] +
+					intensity[i][j - 2] +
+					intensity[i][j - 1] +
+					intensity[i][j] +
+					intensity[i][j + 1] +
+					intensity[i][j + 2] +
+					intensity[i][j + 3] +
+					intensity[i + 1][j - 3] +
+					intensity[i + 1][j - 2] +
+					intensity[i + 1][j - 1] +
+					intensity[i + 1][j] +
+					intensity[i + 1][j + 1] +
+					intensity[i + 1][j + 2] +
+					intensity[i + 1][j + 3] +
+					intensity[i + 2][j - 3] +
+					intensity[i + 2][j - 2] +
+					intensity[i + 2][j - 1] +
+					intensity[i + 2][j] +
+					intensity[i + 2][j + 1] +
+					intensity[i + 2][j + 2] +
+					intensity[i + 2][j + 3] +
+					intensity[i + 3][j - 3]+
+					intensity[i + 3][j - 2]+
+					intensity[i + 3][j - 1]+
+					intensity[i + 3][j]+
+					intensity[i + 3][j + 1]+
+					intensity[i + 3][j + 2]+
+					intensity[i + 3][j + 3]
+					) / 49.0;
+		}
+	}
+
+	viewType = 4;
+	Invalidate(TRUE);
 }
