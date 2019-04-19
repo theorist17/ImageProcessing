@@ -1,4 +1,5 @@
-﻿  201611225View.cpp
+﻿  201611225.cpp
+  201611225View.cpp
 c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(206): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(213): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(220): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
@@ -10,8 +11,9 @@ c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\2016
 c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(554): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(570): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(617): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(706): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(791): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(859): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(997): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(707): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(792): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(860): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2015\projects\201611225\201611225\201611225view.cpp(998): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  Generating Code...
   201611225.vcxproj -> C:\Users\theorist\Documents\Visual Studio 2015\Projects\201611225\Debug\201611225.exe

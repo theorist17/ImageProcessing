@@ -5,6 +5,9 @@
 #pragma once
 #include "Jpegfile.h"
 #include <algorithm>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 class CMy201611225View : public CView
 {
 protected: // create from serialization only
@@ -79,6 +82,8 @@ public:
 	afx_msg void OnGaussianfiltering7();
 	afx_msg void OnMedianfiltering7();
 	afx_msg void OnAveragefiltering7();
+	void FilterCreation(double GKernel[][5]);
+
 };
 
 #ifndef _DEBUG  // debug version in 201611225View.cpp
