@@ -5,6 +5,8 @@
 #pragma once
 #include "Jpegfile.h"
 #include <algorithm>
+#include "opencv2/opencv.hpp"
+using namespace cv;
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif

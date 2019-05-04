@@ -53,7 +53,7 @@ CMy201611225View::CMy201611225View()
 
 CMy201611225View::~CMy201611225View()
 {
-	if (rgbBuffer != nullptr)
+	if (rgbBuffer != nullptr)  
 	{
 		for (int i = 0; i < imgHeight; i++)
 			delete[] rgbBuffer[i];
