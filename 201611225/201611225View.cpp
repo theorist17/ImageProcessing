@@ -39,6 +39,8 @@ BEGIN_MESSAGE_MAP(CMy201611225View, CView)
 	ON_COMMAND(ID_GAUSSIANFILTERING_7, &CMy201611225View::OnGaussianfiltering7)
 	ON_COMMAND(ID_MEDIANFILTERING_7, &CMy201611225View::OnMedianfiltering7)
 	ON_COMMAND(ID_AVERAGEFILTERING_7, &CMy201611225View::OnAveragefiltering7)
+	ON_COMMAND(ID_IMAGELOAD_AVI, &CMy201611225View::OnImageloadAvi)
+	ON_COMMAND(ID_MOTION_3SS, &CMy201611225View::OnMotion3ss)
 END_MESSAGE_MAP()
 
 // CMy201611225View construction/destruction
@@ -1034,4 +1036,89 @@ void CMy201611225View::FilterCreation(double GKernel[][5])
 			cout << GKernel[i][j] << "\t";
 		cout << endl;
 	}*/
+}
+
+
+void CMy201611225View::OnImageloadAvi()
+{
+	// Pop up dialog to select avi file
+	CFileDialog dlg(TRUE, ".avi", NULL, NULL, "AVI File (*.avi)|*.avi||");
+	if (IDOK != dlg.DoModal())
+		return;
+
+	// Get file path
+	CString cfilename = dlg.GetPathName();
+	CT2CA strAtl(cfilename);
+	String filename(strAtl);
+
+	// Load avi file
+	cv::VideoCapture Capture;
+	Capture.open(filename); 
+
+	// Guard if file error
+	if (!Capture.isOpened())
+		AfxMessageBox("Error Video");
+
+	for (;;)
+	{
+		// Read each frame
+		Mat frame;
+		Capture >> frame;
+
+		// End loop if no more frame
+		if (frame.data == nullptr)
+			break;
+
+		// Create window to output frame
+		imshow("video", frame);
+		
+		// Wait for 30ms, break if key interrupt
+		if (waitKey(30) >= 0)
+			break;
+	}
+
+	AfxMessageBox("Completed");
+
+}
+
+
+void CMy201611225View::OnMotion3ss()
+{
+	// Pop up dialog to select avi file
+	CFileDialog dlg(TRUE, ".avi", NULL, NULL, "AVI File (*.avi)|*.avi||");
+	if (IDOK != dlg.DoModal())
+		return;
+
+	// Get file path
+	CString cfilename = dlg.GetPathName();
+	CT2CA strAtl(cfilename);
+	String filename(strAtl);
+
+	// Load avi file
+	cv::VideoCapture Capture;
+	Capture.open(filename);
+
+	// Guard if file error
+	if (!Capture.isOpened())
+		AfxMessageBox("Error Video");
+
+	for (;;)
+	{
+		// Read each frame
+		Mat frame;
+		Capture >> frame;
+
+		// End loop if no more frame
+		if (frame.data == nullptr)
+			break;
+
+		// Create window to output frame
+		imshow("video", frame);
+
+		// Wait for 30ms, break if key interrupt
+		if (waitKey(30) >= 0)
+			break;
+	}
+
+	AfxMessageBox("Completed");
 }

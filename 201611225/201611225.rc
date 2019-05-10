@@ -145,6 +145,7 @@ BEGIN
     BEGIN
         MENUITEM "BMP",                         ID_IMAGELOAD_BMP
         MENUITEM "JPEG",                        ID_IMAGELOAD_JPEG
+        MENUITEM "AVI",                         ID_IMAGELOAD_AVI
     END
     POPUP "Transform"
     BEGIN
@@ -168,6 +169,10 @@ BEGIN
             MENUITEM "5*5",                         ID_AVERAGEFILTERING_5
             MENUITEM "7*7",                         ID_AVERAGEFILTERING_7
         END
+    END
+    POPUP "Motion"
+    BEGIN
+        MENUITEM "3SS",                         ID_MOTION_3SS
     END
 END
 

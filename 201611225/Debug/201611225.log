@@ -1,5 +1,4 @@
-﻿  stdafx.cpp
-  201611225.cpp
+﻿  201611225.cpp
 c:\opencv\build\include\opencv2\core\mat.hpp(1964): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
@@ -10,24 +9,21 @@ c:\opencv\build\include\opencv2\core\mat.hpp(1964): warning C4819: The file cont
 c:\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(206): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(213): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(220): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(227): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(401): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(402): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(404): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(415): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(554): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(570): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(617): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(707): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(792): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(860): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(998): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-  Jpegfile.cpp
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\jpegfile.cpp(139): warning C4101: 'buf': unreferenced local variable
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\jpegfile.cpp(314): warning C4101: 'buf': unreferenced local variable
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(208): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(215): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(222): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(229): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(403): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(404): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(406): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(417): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(556): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(572): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(619): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(709): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(794): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(862): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1000): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
   MainFrm.cpp
   Generating Code...
-  201611225.vcxproj -> C:\Users\theorist\Documents\Visual Studio 2017\Projects\201611225\Debug\201611225.exe
+  201611225.vcxproj -> C:\Users\theorist\Documents\Visual Studio 2019\Projects\201611225\Debug\201611225.exe

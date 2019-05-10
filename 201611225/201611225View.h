@@ -7,9 +7,19 @@
 #include <algorithm>
 #include "opencv2/opencv.hpp"
 using namespace cv;
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+#ifndef BLOCK_SIZE
+#define BLOCK_SIZE 16
+#endif
+
+#ifndef WINDOW_SIZE
+#define WINDOW_SIZE 8
+#endif
+
 class CMy201611225View : public CView
 {
 protected: // create from serialization only
@@ -86,6 +96,8 @@ public:
 	afx_msg void OnAveragefiltering7();
 	void FilterCreation(double GKernel[][5]);
 
+	afx_msg void OnImageloadAvi();
+	afx_msg void OnMotion3ss();
 };
 
 #ifndef _DEBUG  // debug version in 201611225View.cpp
