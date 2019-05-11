@@ -1102,23 +1102,42 @@ void CMy201611225View::OnMotion3ss()
 	if (!Capture.isOpened())
 		AfxMessageBox("Error Video");
 
-	for (;;)
+	Mat curframe, lastframe, outputframe, mask;
+	int rows, cols, frame_interval = 3;
+	for (int i = 0; ;i++)
 	{
 		// Read each frame
-		Mat frame;
-		Capture >> frame;
+		Capture >> curframe;
 
 		// End loop if no more frame
-		if (frame.data == nullptr)
+		if (curframe.data == nullptr)
 			break;
 
 		// Create window to output frame
-		imshow("video", frame);
+		imshow("video", curframe);
+		if (i == 0) 
+		{
+			rows = curframe.rows;
+			cols = curframe.cols;
+		}
+		else
+		{
+			if (i % frame_interval == 0) {
+				imshow("output", lastframe);
+				
+				//imshow("difference", outputframe);
+			}
+		}
 
 		// Wait for 30ms, break if key interrupt
 		if (waitKey(30) >= 0)
 			break;
+		
+		// Save current frame
+		if (i % frame_interval == 0)
+			lastframe = curframe;
 	}
-
+	Capture.release();
+	cv::destroyAllWindows();
 	AfxMessageBox("Completed");
 }

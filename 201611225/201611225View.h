@@ -5,6 +5,7 @@
 #pragma once
 #include "Jpegfile.h"
 #include <algorithm>
+#include <sstream>
 #include "opencv2/opencv.hpp"
 using namespace cv;
 
