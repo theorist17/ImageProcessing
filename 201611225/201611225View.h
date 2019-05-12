@@ -6,7 +6,9 @@
 #include "Jpegfile.h"
 #include <algorithm>
 #include <sstream>
+#include <cmath>
 #include "opencv2/opencv.hpp"
+
 using namespace cv;
 
 #ifndef M_PI
@@ -14,12 +16,17 @@ using namespace cv;
 #endif
 
 #ifndef BLOCK_SIZE
-#define BLOCK_SIZE 16
+#define BLOCK_SIZE 8
 #endif
 
 #ifndef WINDOW_SIZE
 #define WINDOW_SIZE 8
 #endif
+
+#ifndef FRAME_INTERVAL
+#define FRAME_INTERVAL 3
+#endif
+
 
 class CMy201611225View : public CView
 {

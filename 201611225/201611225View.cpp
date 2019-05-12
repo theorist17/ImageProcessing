@@ -1102,40 +1102,115 @@ void CMy201611225View::OnMotion3ss()
 	if (!Capture.isOpened())
 		AfxMessageBox("Error Video");
 
-	Mat curframe, lastframe, outputframe, mask;
-	int rows, cols, frame_interval = 3;
-	for (int i = 0; ;i++)
+	Mat curr, prev, show, cout, pout;
+	Capture >> curr;
+	int block_rows = curr.rows / BLOCK_SIZE;
+	int block_cols = curr.cols / BLOCK_SIZE;
+	curr.copyTo(prev);
+
+	// Coordinate of block to track
+	int tbx = block_rows/2, tby = 0, tbdone = 0;
+
+	for (int frame = 0; ; frame++)
 	{
-		// Read each frame
-		Capture >> curframe;
-
 		// End loop if no more frame
-		if (curframe.data == nullptr)
+		if (curr.data == nullptr)
 			break;
 
-		// Create window to output frame
-		imshow("video", curframe);
-		if (i == 0) 
-		{
-			rows = curframe.rows;
-			cols = curframe.cols;
-		}
-		else
-		{
-			if (i % frame_interval == 0) {
-				imshow("output", lastframe);
-				
-				//imshow("difference", outputframe);
+		if (frame % FRAME_INTERVAL == 0) {
+			// Initialize matrix
+			curr.copyTo(show);
+			//curr.copyTo(cout);
+			//curr.copyTo(pout);
+			tbdone = 0;
+
+			// Three step search
+			for (int y = 0; y < block_rows; y++) {
+				for (int x = 0; x < block_cols; x++) {
+
+					// Coordinate of center pixel (tail)
+					int Tx = x * BLOCK_SIZE + BLOCK_SIZE / 2;
+					int Ty = y * BLOCK_SIZE + BLOCK_SIZE / 2;
+
+					// Find best dx, dy
+					int bestdx = 0, bestdy = 0;
+					Mat diff;
+					Rect block(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+					cv::absdiff(curr(block), prev(block), diff);
+					double minSAD = cv::sum(diff)[0];
+					for (int step = 1, w = WINDOW_SIZE/2; step <= 3; step++, w = w >> 1) {
+						int centerdx = bestdx, centerdy = bestdy;
+						for (int dy = -w; dy <= w; dy += w) {
+							if (minSAD == 0) break;
+							for (int dx = -w; dx <= w; dx += w) { 
+								if (minSAD == 0) break; // perfect match found
+								if (dx == 0 && dy == 0) // center point
+									continue;
+
+								// Bound check block coordinates
+								int X = y + centerdy + dy;
+								int Y = x + centerdx + dx;
+								if (Y < 0 || Y >= block_cols || X < 0 || X >= block_rows)
+									continue;
+								
+								// Get block coordinate in search window 
+								Rect BLOCK(Y * BLOCK_SIZE, X * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+								cv::absdiff(curr(block), prev(BLOCK), diff);
+								double SAD = cv::sum(diff)[0]; // Sum of abosulute difference
+								if (SAD < minSAD) {
+									minSAD = SAD;
+									bestdx = centerdx + dx;
+									bestdy = centerdy + dy;
+								}
+							}
+						}
+					}
+					
+					// Coordinate of head pixel
+					int Hx = Tx + bestdx * (BLOCK_SIZE / WINDOW_SIZE) / 2;
+					int Hy = Ty + bestdy * (BLOCK_SIZE / WINDOW_SIZE) / 2;
+
+					// Draw grid of motion field
+					cv::line(show, CvPoint(Tx, Ty), CvPoint(Hx, Hy), CvScalar(0, 0, 255, 0), 1, 8, 0);
+					/*if (bestdx != 0||bestdy!=0) {
+						Tx -= BLOCK_SIZE / 2;
+						Ty -= BLOCK_SIZE / 2;
+						cv::rectangle(cout, CvPoint(Tx, Ty), CvPoint(Tx + BLOCK_SIZE, Ty + BLOCK_SIZE), CvScalar(255, 0, 0, 0), 1, 8, 0);
+						cv::rectangle(pout, CvPoint(Tx + bestdx * BLOCK_SIZE, Ty + bestdy * BLOCK_SIZE),
+							CvPoint(Tx + (bestdx + 1) * BLOCK_SIZE, Ty + (bestdy+1) * BLOCK_SIZE), CvScalar(0, 0, 255, 0), 1, 8, 0);
+						cv::imshow("current", cout);
+						cv::imshow("previous", pout);
+						curr.copyTo(cout);
+						prev.copyTo(pout);
+
+						cv::imshow("Motion field", show);
+						cv::waitKey(3000);
+					}*/
+
+					// Track coordinate of block
+					if (tbx == x && tby == y && tbdone == 0) {
+						tbx += bestdx;	tby += bestdy;
+						tbdone == 1;
+					}
+				}
 			}
-		}
 
-		// Wait for 30ms, break if key interrupt
-		if (waitKey(30) >= 0)
-			break;
+			// Draw circle for block being tracked
+			cv::circle(show, CvPoint(tbx* BLOCK_SIZE, tby* BLOCK_SIZE), 8, CvScalar(0, 0, 255, 0), 1, 8, 0);
+
+			// Draw frame by frame 
+			cv::imshow("Motion field", show);
+
+			// Save current frame
+			curr.copyTo(prev);
+		}
 		
-		// Save current frame
-		if (i % frame_interval == 0)
-			lastframe = curframe;
+		// Wait for 30ms, break if key interrupt
+		if (waitKey(150) >= 0)
+			break;		
+
+		// Read each frame
+		Capture >> curr;
 	}
 	Capture.release();
 	cv::destroyAllWindows();
