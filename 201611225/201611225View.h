@@ -16,7 +16,7 @@ using namespace cv;
 #endif
 
 #ifndef BLOCK_SIZE
-#define BLOCK_SIZE 8
+#define BLOCK_SIZE 16
 #endif
 
 #ifndef WINDOW_SIZE

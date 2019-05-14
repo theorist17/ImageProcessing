@@ -1206,7 +1206,7 @@ void CMy201611225View::OnMotion3ss()
 		}
 		
 		// Wait for 30ms, break if key interrupt
-		if (waitKey(150) >= 0)
+		if (waitKey(300) >= 0)
 			break;		
 
 		// Read each frame

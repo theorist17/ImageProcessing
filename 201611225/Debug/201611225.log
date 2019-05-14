@@ -1,9 +1,4 @@
-﻿  201611225.cpp
-c:\opencv\build\include\opencv2\core\mat.hpp(1964): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-  201611225View.cpp
+﻿  201611225View.cpp
 c:\opencv\build\include\opencv2\core\mat.hpp(1964): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
@@ -24,5 +19,4 @@ c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\2016
 c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(862): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1000): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1193): warning C4553: '==': result of expression not used; did you intend '='?
-  Generating Code...
   201611225.vcxproj -> C:\Users\theorist\Documents\Visual Studio 2019\Projects\201611225\Debug\201611225.exe
