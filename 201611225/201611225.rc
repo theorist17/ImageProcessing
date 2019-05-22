@@ -174,6 +174,11 @@ BEGIN
     BEGIN
         MENUITEM "3SS",                         ID_MOTION_3SS
     END
+    POPUP "Connectivity"
+    BEGIN
+        MENUITEM "4-CCA Colorization",          ID_CONNECTIVITY_4
+        MENUITEM "8-CCA Colorization",          ID_CONNECTIVITY_8
+    END
 END
 
 

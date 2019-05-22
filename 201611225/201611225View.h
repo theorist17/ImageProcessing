@@ -16,15 +16,15 @@ using namespace cv;
 #endif
 
 #ifndef BLOCK_SIZE
-#define BLOCK_SIZE 16
+#define BLOCK_SIZE 8
 #endif
 
 #ifndef WINDOW_SIZE
-#define WINDOW_SIZE 8
+#define WINDOW_SIZE 16
 #endif
 
 #ifndef FRAME_INTERVAL
-#define FRAME_INTERVAL 3
+#define FRAME_INTERVAL 1
 #endif
 
 
@@ -56,10 +56,18 @@ public:
 	// Grayscale
 	int** intensity;
 	int** intenNext;
+	
+	// Bitscale
+	int** binary;
+	int** label;
+	int labels;
+	int** colors;
+
 	int intenHisto[256];
 	int intenEqual[256];
 	int intenSum[256];
 	int intenEquisum[256];
+
 
 // Operations
 public:
@@ -93,6 +101,7 @@ public:
 	BYTE* LoadJpegFromOpenFile(FILE* fp, BITMAPINFOHEADER* pbh, UINT* pWidth, UINT* pHeight);
 	afx_msg void OnTransformHistogramequalization();
 	void ReadIntensity();
+	void ReadBinary();
 	afx_msg void OnGaussianfiltering3();
 	afx_msg void OnMedianfiltering3();
 	afx_msg void OnAveragefiltering3();
@@ -106,6 +115,7 @@ public:
 
 	afx_msg void OnImageloadAvi();
 	afx_msg void OnMotion3ss();
+	afx_msg void OnConnectivity4();
 };
 
 #ifndef _DEBUG  // debug version in 201611225View.cpp

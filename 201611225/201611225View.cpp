@@ -41,6 +41,7 @@ BEGIN_MESSAGE_MAP(CMy201611225View, CView)
 	ON_COMMAND(ID_AVERAGEFILTERING_7, &CMy201611225View::OnAveragefiltering7)
 	ON_COMMAND(ID_IMAGELOAD_AVI, &CMy201611225View::OnImageloadAvi)
 	ON_COMMAND(ID_MOTION_3SS, &CMy201611225View::OnMotion3ss)
+	ON_COMMAND(ID_CONNECTIVITY_4, &CMy201611225View::OnConnectivity4)
 END_MESSAGE_MAP()
 
 // CMy201611225View construction/destruction
@@ -130,7 +131,10 @@ void CMy201611225View::OnDraw(CDC* pDC)
 	}
 	// draw image to the view
 
+
+
 	int diff = 0;
+	int color = 0;
 	if (rgbBuffer != NULL)
 	{
 		for (int i = 0; i < imgHeight; i++)
@@ -179,6 +183,12 @@ void CMy201611225View::OnDraw(CDC* pDC)
 					p.y = i;
 					pDC->SetPixel(p, RGB(intensity[i][j] - intenNext[i][j], intensity[i][j] - intenNext[i][j], intensity[i][j] - intenNext[i][j]));
 					diff += (intensity[i][j] - intenNext[i][j]);
+				}
+				else if (viewType == 5) 
+				{
+					if (label[i][j] != 0) {
+						pDC->SetPixel(p, RGB(colors[label[i][j]][0], colors[label[i][j]][1], colors[label[i][j]][2]));
+					}
 				}
 			}
 		}
@@ -599,6 +609,26 @@ void CMy201611225View::ReadIntensity()
 		}
 	}
 }
+void CMy201611225View::ReadBinary()
+{
+	binary = new int* [imgHeight + 1];
+	label = new int* [imgHeight];
+	binary[0] = new int[imgWidth + 1];
+	for (int i = 0; i < imgWidth; i++)
+	{
+		binary[i+1] = new int[imgWidth + 1];
+		label[i] = new int[imgWidth];
+	}
+	for (int i = 0; i < imgHeight; i++)
+	{
+		for (int j = 0; j < imgWidth; j++)
+		{
+			binary[i + 1][j + 1] = ((rgbBuffer[i][j].rgbBlue + rgbBuffer[i][j].rgbGreen + rgbBuffer[i][j].rgbRed) / 3 >= 128) ? 1 : 0;
+			label[i][j] = 0;
+		}
+	}
+}
+
 
 void CMy201611225View::OnGaussianfiltering3()
 {
@@ -1102,82 +1132,180 @@ void CMy201611225View::OnMotion3ss()
 	if (!Capture.isOpened())
 		AfxMessageBox("Error Video");
 
-	Mat curr, prev, show, cout, pout;
-	Capture >> curr;
-	int block_rows = curr.rows / BLOCK_SIZE;
-	int block_cols = curr.cols / BLOCK_SIZE;
-	curr.copyTo(prev);
+	Mat prev, next, frame, nexthsv, prevhsv /*, temp*/;
+	Capture >> next;
+	cv::cvtColor(next, nexthsv, cv::COLOR_BGR2HSV, 0);
+	prev = next.clone();
+	cv::cvtColor(next, prevhsv, cv::COLOR_BGR2HSV, 0);
+	frame = next.clone();
+
+	Capture >> next;
+	cv::cvtColor(next, nexthsv, cv::COLOR_BGR2HSV, 0);
+
+	int MAXROWS = prev.rows / BLOCK_SIZE; 
+	int MAXCOLS = prev.cols / BLOCK_SIZE;
 
 	// Coordinate of block to track
-	int tbx = block_rows/2, tby = 0, tbdone = 0;
+	int trackingRow = 21, trackingCol = 10, frameTracked = false; // 334
+	//int trackingRow = 18, trackingCol = 14, frameTracked = false; // 378
+	
 
-	for (int frame = 0; ; frame++)
+	for (int framecnt = 0; ; framecnt++)
 	{
+
 		// End loop if no more frame
-		if (curr.data == nullptr)
+		if (next.data == nullptr)
 			break;
 
-		if (frame % FRAME_INTERVAL == 0) {
+		if (framecnt % FRAME_INTERVAL == 0) {
+
 			// Initialize matrix
-			curr.copyTo(show);
-			//curr.copyTo(cout);
-			//curr.copyTo(pout);
-			tbdone = 0;
+			frame = prev.clone();
+			frameTracked = false;
+			//unsigned char* prevarr = prev.data;
+			//unsigned char* nextarr = next.data;
+
 
 			// Three step search
-			for (int y = 0; y < block_rows; y++) {
-				for (int x = 0; x < block_cols; x++) {
+			for (int prevRow = 0; prevRow < MAXROWS; prevRow++) {
+				for (int prevCol = 0; prevCol < MAXCOLS; prevCol++) {
 
-					// Coordinate of center pixel (tail)
-					int Tx = x * BLOCK_SIZE + BLOCK_SIZE / 2;
-					int Ty = y * BLOCK_SIZE + BLOCK_SIZE / 2;
 
-					// Find best dx, dy
-					int bestdx = 0, bestdy = 0;
+					// Find best matching dx, dy (in relative measure)
+					int dx = 0, dy = 0;
+					
 					Mat diff;
-					Rect block(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-					cv::absdiff(curr(block), prev(block), diff);
-					double minSAD = cv::sum(diff)[0];
+					Rect reference(prevCol * BLOCK_SIZE, prevRow * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+					cv::absdiff(prevhsv(reference), nexthsv(reference), diff);
+					double MAE, min = cv::sum(diff)[0];// / ((double)curr.channels() * BLOCK_SIZE * BLOCK_SIZE);
+
+					//int min, MAE = 0, temp;
+					//for (int i = curRow * BLOCK_SIZE; i < curRow * BLOCK_SIZE + BLOCK_SIZE; i++) {
+					//	for (int j = curCol * BLOCK_SIZE; j < curCol * BLOCK_SIZE + BLOCK_SIZE; j++) {
+					//		for (int bgr = 0; bgr < 3; bgr++) {
+					//			//uchar b = currarr[curr.channels() * (curr.rows * i + j) + 0];
+					//			//uchar g = currarr[curr.channels() * (curr.rows * i + j) + 1];
+					//			//uchar r = currarr[curr.channels() * (curr.rows * i + j) + 2];
+					//			temp = currarr[curr.channels() * (curr.cols * i + j) + bgr] - prevarr[prev.channels() * (prev.cols * i + j) + bgr];
+					//			if (temp < 0) temp = -temp;
+					//			MAE += temp;
+					//		}
+					//	}
+					//}
+					//min = MAE;
+
+					// Find best matching block in (r, c as absolute values of x, y in image matrix)
+					int nextRow, nextCol;
+					//temp = frame.clone();
+
+					//bool minChanged = false;
+					// Loop searching 8 points each step
 					for (int step = 1, w = WINDOW_SIZE/2; step <= 3; step++, w = w >> 1) {
-						int centerdx = bestdx, centerdy = bestdy;
-						for (int dy = -w; dy <= w; dy += w) {
-							if (minSAD == 0) break;
-							for (int dx = -w; dx <= w; dx += w) { 
-								if (minSAD == 0) break; // perfect match found
-								if (dx == 0 && dy == 0) // center point
+						int dxcenter = dx, dycenter = dy;
+						//cv::circle(frame, CvPoint((nextCol + dxcenter) * BLOCK_SIZE + BLOCK_SIZE / 2, (nextRow + dycenter) * BLOCK_SIZE + BLOCK_SIZE / 2), BLOCK_SIZE / (2*w), CvScalar(0, 255, 0, 0), 1, 8, 0);
+						
+						for (int dycandidate = -w; dycandidate <= w; dycandidate += w) {
+							for (int dxcandidate = -w; dxcandidate <= w; dxcandidate += w) {
+								if (dxcandidate == 0 && dycandidate == 0) // no need to consider center point again
 									continue;
 
 								// Bound check block coordinates
-								int X = y + centerdy + dy;
-								int Y = x + centerdx + dx;
-								if (Y < 0 || Y >= block_cols || X < 0 || X >= block_rows)
+								nextRow = prevRow + dycenter + dycandidate;
+								nextCol = prevCol + dxcenter + dxcandidate;
+								if (nextRow < 0 || nextRow >= MAXROWS || nextCol < 0 || nextCol >= MAXCOLS)
 									continue;
+
+								//cv::circle(frame, CvPoint((nextCol) * BLOCK_SIZE + BLOCK_SIZE / 2, (nextRow) * BLOCK_SIZE + BLOCK_SIZE / 2), BLOCK_SIZE / 2, CvScalar(0, 255, 0, 0), 1, 8, 0);
+
 								
-								// Get block coordinate in search window 
-								Rect BLOCK(Y * BLOCK_SIZE, X * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-								cv::absdiff(curr(block), prev(BLOCK), diff);
-								double SAD = cv::sum(diff)[0]; // Sum of abosulute difference
-								if (SAD < minSAD) {
-									minSAD = SAD;
-									bestdx = centerdx + dx;
-									bestdy = centerdy + dy;
+								
+								//// Get block coordinate in search window 
+								Rect candidate(nextCol * BLOCK_SIZE, nextRow * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+								cv::absdiff(prevhsv(reference), nexthsv(candidate), diff);
+								MAE = cv::sum(diff)[0];// / ((double)prev.channels() * BLOCK_SIZE * BLOCK_SIZE);
+								
+
+								/*MAE = 0;
+								for (int i = curRow * BLOCK_SIZE, p = prevRow * BLOCK_SIZE; i < curRow * BLOCK_SIZE + BLOCK_SIZE; i++, p++) {
+									for (int j = curCol * BLOCK_SIZE, q = prevCol * BLOCK_SIZE; j < curCol * BLOCK_SIZE + BLOCK_SIZE; j++, q++) {
+										for (int bgr = 0; bgr < 3; bgr++) {
+											temp = currarr[curr.channels() * (curr.cols * i + j) + bgr] - prevarr[prev.channels() * (prev.cols * p + q) + bgr];
+											if (temp < 0) temp = -temp;
+											MAE += temp;
+										}
+									}
+								}*/
+
+								if (MAE < min) {
+									dx = dxcenter + dxcandidate;
+									dy = dycenter + dycandidate;
+									min = MAE;
+									//minChanged = true;
+									//cv::rectangle(frame, CvPoint(prevCol* BLOCK_SIZE, prevRow* BLOCK_SIZE),
+									//	CvPoint((prevCol+1)* BLOCK_SIZE, (prevRow +1)* BLOCK_SIZE ), 
+									//	CvScalar(0, 0, 255, 0), 1, 8, 0);
 								}
 							}
 						}
 					}
-					
-					// Coordinate of head pixel
-					int Hx = Tx + bestdx * (BLOCK_SIZE / WINDOW_SIZE) / 2;
-					int Hy = Ty + bestdy * (BLOCK_SIZE / WINDOW_SIZE) / 2;
+					// Update row & col of tracking block
+					// Add circle for tracked block
+					nextCol = prevCol + dx;
+					nextRow = prevRow + dy;
+					/*if (framecnt > 52&&( nextCol != prevCol || nextRow != prevRow )) {
+						cv::circle(frame, CvPoint(nextCol* BLOCK_SIZE + BLOCK_SIZE / 2, nextRow* BLOCK_SIZE + BLOCK_SIZE / 2), BLOCK_SIZE / 4, CvScalar(0, 0, 255, 0), 2, 8, 0);
+						cv::circle(frame, CvPoint(prevCol* BLOCK_SIZE + BLOCK_SIZE / 2, prevRow* BLOCK_SIZE + BLOCK_SIZE / 2), BLOCK_SIZE / 4, CvScalar(0, 0, 0, 255), 2, 8, 0);
 
-					// Draw grid of motion field
-					cv::line(show, CvPoint(Tx, Ty), CvPoint(Hx, Hy), CvScalar(0, 0, 255, 0), 1, 8, 0);
-					/*if (bestdx != 0||bestdy!=0) {
+						cv::imshow("Frame", frame);
+						cv::waitKey(200);
+					}*/
+					//frame = temp.clone();
+
+					if (prevCol == trackingCol && prevRow == trackingRow && frameTracked == false) {
+						trackingRow = nextRow;
+						trackingCol = nextCol;
+						frameTracked = true;
+						/*cv::rectangle(frame, CvPoint(nextCol* BLOCK_SIZE - 1, nextRow* BLOCK_SIZE - 1),
+							CvPoint((nextCol + 1)* BLOCK_SIZE + 1, (nextRow + 1)* BLOCK_SIZE + 1),
+							CvScalar(255, 0, 0, 0), 1, 8, 0);*/
+						//cv::waitKey(1000);
+						//cv::circle(frame, CvPoint(prevCol* BLOCK_SIZE + BLOCK_SIZE / 2, prevRow* BLOCK_SIZE + BLOCK_SIZE / 2), BLOCK_SIZE / 4, CvScalar(255, 0, 0, 0), 2, 8, 0);
+						cv::circle(frame, CvPoint(trackingCol* BLOCK_SIZE + BLOCK_SIZE / 2, trackingRow* BLOCK_SIZE + BLOCK_SIZE / 2), BLOCK_SIZE / 2, CvScalar(0, 0, 255, 0), 2, 8, 0);
+					}
+					
+					
+					//if (/*minChanged == true&& */nextCol == trackingCol && nextRow == trackingRow && frameTracked == false)
+					//{
+
+					//	cv::rectangle(frame, CvPoint(nextCol* BLOCK_SIZE -1, nextRow* BLOCK_SIZE-1),
+					//		CvPoint((nextCol + 1)* BLOCK_SIZE+1, (nextRow + 1)* BLOCK_SIZE+1),
+					//		CvScalar(255, 0, 0, 0), 1, 8, 0);
+					//	cv::imshow("Frame", frame);
+					//	cv::imshow("Previous", next);
+					//	cv::waitKey(3000);
+					//}
+					
+					
+					// Coordinate of tail pixel (the original block from current frame)
+					int Tx = prevCol * BLOCK_SIZE + BLOCK_SIZE / 2;
+					int Ty = prevRow * BLOCK_SIZE + BLOCK_SIZE / 2;
+
+					// Coordinate of head pixel (best matching block from previous frame)
+					int Hx = Tx + dx * ((BLOCK_SIZE / 2) / WINDOW_SIZE);
+					int Hy = Ty + dy * ((BLOCK_SIZE / 2) / WINDOW_SIZE);
+
+					// Add motion field to fill the whole grid
+					cv::line(frame, CvPoint(Tx, Ty), CvPoint(Hx, Hy), CvScalar(0, 0, 255, 0), 1.5, 8, 0);
+					cv::circle(frame, CvPoint(Tx, Ty), 1, CvScalar(0, 0, 255, 0), 1.5, 8, 0);
+
+					/*if (dx != 0||dy!=0) {
+						Mat cout = curr.clone();
+						Mat pout = curr.clone();
 						Tx -= BLOCK_SIZE / 2;
 						Ty -= BLOCK_SIZE / 2;
 						cv::rectangle(cout, CvPoint(Tx, Ty), CvPoint(Tx + BLOCK_SIZE, Ty + BLOCK_SIZE), CvScalar(255, 0, 0, 0), 1, 8, 0);
-						cv::rectangle(pout, CvPoint(Tx + bestdx * BLOCK_SIZE, Ty + bestdy * BLOCK_SIZE),
-							CvPoint(Tx + (bestdx + 1) * BLOCK_SIZE, Ty + (bestdy+1) * BLOCK_SIZE), CvScalar(0, 0, 255, 0), 1, 8, 0);
+						cv::rectangle(pout, CvPoint(Tx + dx * BLOCK_SIZE, Ty + dy * BLOCK_SIZE),
+							CvPoint(Tx + (dx + 1) * BLOCK_SIZE, Ty + (dy+1) * BLOCK_SIZE), CvScalar(0, 0, 255, 0), 1, 8, 0);
 						cv::imshow("current", cout);
 						cv::imshow("previous", pout);
 						curr.copyTo(cout);
@@ -1186,33 +1314,78 @@ void CMy201611225View::OnMotion3ss()
 						cv::imshow("Motion field", show);
 						cv::waitKey(3000);
 					}*/
-
-					// Track coordinate of block
-					if (tbx == x && tby == y && tbdone == 0) {
-						tbx += bestdx;	tby += bestdy;
-						tbdone == 1;
-					}
+					
 				}
 			}
-
-			// Draw circle for block being tracked
-			cv::circle(show, CvPoint(tbx* BLOCK_SIZE, tby* BLOCK_SIZE), 8, CvScalar(0, 0, 255, 0), 1, 8, 0);
-
-			// Draw frame by frame 
-			cv::imshow("Motion field", show);
-
+		
+			cv::imshow("Frame", frame);
+			//cv::waitKey(10000);
+			
 			// Save current frame
-			curr.copyTo(prev);
+			prev = next.clone();
+			prevhsv = nexthsv.clone();
 		}
 		
 		// Wait for 30ms, break if key interrupt
-		if (waitKey(300) >= 0)
+		if (waitKey(30000) >= 0)
 			break;		
 
 		// Read each frame
-		Capture >> curr;
+		Capture >> next;
+		cv::cvtColor(next, nexthsv, cv::COLOR_BGR2HSV, 0);
+
 	}
+
 	Capture.release();
 	cv::destroyAllWindows();
 	AfxMessageBox("Completed");
+}
+
+
+void CMy201611225View::OnConnectivity4()
+{
+	// TODO: Add your command handler code here
+	OnImageloadJpeg();
+	ReadBinary();
+
+	labels = 0;
+	// zero padded matrix (height +1, width +1)
+	for (int i = 0; i < imgHeight + 1; i++)
+	{
+		for (int j = 0; j < imgWidth + 1; j++)
+		{
+			if (binary[i][j] == 1) {
+				if (binary[i - 1][j] == 1 && binary[i][j - 1] == 0) { //top
+					label[i][j] = label[i - 1][j];
+				}
+				else if (binary[i - 1][j] == 0 && binary[i][j - 1] == 1) { //left
+					label[i][j] = label[i][j -1];
+				}
+				else if (binary[i - 1][j] == 1 && binary[i][j - 1] == 1) { //both
+					label[i][j] = label[i-1][j];
+				}
+				else {
+					label[i][j] = labels++;
+				}
+			}
+		}
+	}
+
+	colors = new int*[labels];
+	srand(3);
+	for (int i = 0; i < labels; i++) {
+		colors[i] = new int[3];
+		colors[i][0] = rand() % 256;	
+		colors[i][1] = rand() % 256;	
+		colors[i][2] = rand() % 256;	
+	}
+
+
+	viewType = 5;
+	Invalidate(TRUE);
+	//for (int i = 0; i < imgWidth; i++)
+	//{
+	//	binary[i] = new int[imgWidth];
+	//}
+	//binary = new int* [imgHeight];
 }
