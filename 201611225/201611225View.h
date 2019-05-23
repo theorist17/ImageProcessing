@@ -8,6 +8,9 @@
 #include <sstream>
 #include <cmath>
 #include "opencv2/opencv.hpp"
+#include <map>
+#include <set>
+#include <queue>
 
 using namespace cv;
 
@@ -16,11 +19,11 @@ using namespace cv;
 #endif
 
 #ifndef BLOCK_SIZE
-#define BLOCK_SIZE 8
+#define BLOCK_SIZE 16
 #endif
 
 #ifndef WINDOW_SIZE
-#define WINDOW_SIZE 16
+#define WINDOW_SIZE 8
 #endif
 
 #ifndef FRAME_INTERVAL
@@ -60,8 +63,10 @@ public:
 	// Bitscale
 	int** binary;
 	int** label;
-	int labels;
-	int** colors;
+	int labelno;
+	int*** ccacolor;
+	int* lookup;
+	int** randcolor;
 
 	int intenHisto[256];
 	int intenEqual[256];

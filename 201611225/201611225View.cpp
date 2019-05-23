@@ -187,7 +187,10 @@ void CMy201611225View::OnDraw(CDC* pDC)
 				else if (viewType == 5) 
 				{
 					if (label[i][j] != 0) {
-						pDC->SetPixel(p, RGB(colors[label[i][j]][0], colors[label[i][j]][1], colors[label[i][j]][2]));
+						for (int k = 0; k < labelno; k++) {
+							if (lookup[k] == label[i][j])
+								pDC->SetPixel(p, RGB(randcolor[k][0], randcolor[k][1], randcolor[k][2]));
+						}
 					}
 				}
 			}
@@ -611,19 +614,21 @@ void CMy201611225View::ReadIntensity()
 }
 void CMy201611225View::ReadBinary()
 {
-	binary = new int* [imgHeight + 1];
+	binary = new int* [imgHeight];
 	label = new int* [imgHeight];
-	binary[0] = new int[imgWidth + 1];
-	for (int i = 0; i < imgWidth; i++)
+	for (int i = 0; i < imgHeight; i++)
 	{
-		binary[i+1] = new int[imgWidth + 1];
+		binary[i] = new int[imgWidth];
 		label[i] = new int[imgWidth];
 	}
 	for (int i = 0; i < imgHeight; i++)
 	{
 		for (int j = 0; j < imgWidth; j++)
 		{
-			binary[i + 1][j + 1] = ((rgbBuffer[i][j].rgbBlue + rgbBuffer[i][j].rgbGreen + rgbBuffer[i][j].rgbRed) / 3 >= 128) ? 1 : 0;
+			int blue = rgbBuffer[i][j].rgbBlue;
+			int green = rgbBuffer[i][j].rgbGreen;
+			int red = rgbBuffer[i][j].rgbRed;
+			binary[i][j] = ((red+green+blue)  >= 384) ? 1 : 0;
 			label[i][j] = 0;
 		}
 	}
@@ -1147,6 +1152,7 @@ void CMy201611225View::OnMotion3ss()
 
 	// Coordinate of block to track
 	int trackingRow = 21, trackingCol = 10, frameTracked = false; // 334
+	// int trackingRow = 42, trackingCol = 20, frameTracked = false; // 334
 	//int trackingRow = 18, trackingCol = 14, frameTracked = false; // 378
 	
 
@@ -1327,7 +1333,7 @@ void CMy201611225View::OnMotion3ss()
 		}
 		
 		// Wait for 30ms, break if key interrupt
-		if (waitKey(30000) >= 0)
+		if (waitKey(30) >= 0)
 			break;		
 
 		// Read each frame
@@ -1348,36 +1354,87 @@ void CMy201611225View::OnConnectivity4()
 	OnImageloadJpeg();
 	ReadBinary();
 
-	labels = 0;
+	labelno = 0;
+
+	std::map<int, int> same;
 	// zero padded matrix (height +1, width +1)
-	for (int i = 0; i < imgHeight + 1; i++)
+	for (int i = 1; i < imgHeight; i++)
 	{
-		for (int j = 0; j < imgWidth + 1; j++)
+		for (int j = 1; j < imgWidth; j++)
 		{
 			if (binary[i][j] == 1) {
-				if (binary[i - 1][j] == 1 && binary[i][j - 1] == 0) { //top
-					label[i][j] = label[i - 1][j];
+				if (binary[i - 1][j] == 1 && binary[i][j - 1] == 1) { //both
+					label[i][j] = label[i - 1][j]; // set top
+					if (label[i - 1][j] != label[i][j - 1])
+						same.insert(std::pair<int, int>(label[i - 1][j], label[i][j - 1]));
+				}
+				else if (binary[i - 1][j] == 1 && binary[i][j - 1] == 0) { //top
+					label[i][j] = label[i - 1][j]; // set top
 				}
 				else if (binary[i - 1][j] == 0 && binary[i][j - 1] == 1) { //left
-					label[i][j] = label[i][j -1];
-				}
-				else if (binary[i - 1][j] == 1 && binary[i][j - 1] == 1) { //both
-					label[i][j] = label[i-1][j];
+					label[i][j] = label[i][j - 1]; // set left
 				}
 				else {
-					label[i][j] = labels++;
+					label[i][j] = ++labelno; // set new
 				}
 			}
 		}
 	}
 
-	colors = new int*[labels];
+	std::map<int, int>::iterator p;
+	std::queue<std::set> components;
+	for (std::map<int, int>::iterator it = same.begin(); it != same.end(); ++it) 
+	{
+		std::set<int> component;
+		int temp = it->fi;
+		group.insert(temp);
+		labelno--;
+		std::map<int, int>::iterator search;
+		while ((search = same.find(temp)) != same.end())
+		{
+			temp = search->second;
+			group.insert(temp);
+			labelno--;
+		}
+
+	}
+	for (int i = 0; i < imgHeight; i++)
+	{
+		for (int j = 0; j < imgWidth; j++)
+		{
+			if (group.find(label[i][j]) != group.end())
+				label[i][j] = it->first;
+		}
+	}
+	
+	
 	srand(3);
-	for (int i = 0; i < labels; i++) {
-		colors[i] = new int[3];
-		colors[i][0] = rand() % 256;	
-		colors[i][1] = rand() % 256;	
-		colors[i][2] = rand() % 256;	
+	randcolor = new int*[labelno];
+	for (int i = 0; i < labelno; i++) {
+		randcolor[i] = new int[3];
+		randcolor[i][0] = rand() % 256;
+		randcolor[i][1] = rand() % 256;
+		randcolor[i][2] = rand() % 256;
+	}
+	lookup = new int[labelno];
+	for (int k = 0; k < labelno; k++){
+		lookup[k] = 0;
+	}
+	int index = 0;
+	for (int i = 0; i < imgHeight; i++) {
+		for (int j = 0; j < imgWidth; j++) {
+			if (label[i][j] != 0)
+			{
+				int contains = false;
+				for (int k = 0; k <= index; k++) {
+					if (label[i][j] == lookup[k])
+						contains = true;
+				}
+				if (!contains) {
+					lookup[index++] = label[i][j];
+				}
+			}
+		}
 	}
 
 
