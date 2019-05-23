@@ -9,8 +9,7 @@
 #include <cmath>
 #include "opencv2/opencv.hpp"
 #include <map>
-#include <set>
-#include <queue>
+#include <deque>
 
 using namespace cv;
 
@@ -63,9 +62,7 @@ public:
 	// Bitscale
 	int** binary;
 	int** label;
-	int labelno;
 	int*** ccacolor;
-	int* lookup;
 	int** randcolor;
 
 	int intenHisto[256];

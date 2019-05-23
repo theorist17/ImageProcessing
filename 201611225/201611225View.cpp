@@ -186,12 +186,7 @@ void CMy201611225View::OnDraw(CDC* pDC)
 				}
 				else if (viewType == 5) 
 				{
-					if (label[i][j] != 0) {
-						for (int k = 0; k < labelno; k++) {
-							if (lookup[k] == label[i][j])
-								pDC->SetPixel(p, RGB(randcolor[k][0], randcolor[k][1], randcolor[k][2]));
-						}
-					}
+					pDC->SetPixel(p, RGB(ccacolor[i][j][0], ccacolor[i][j][1], ccacolor[i][j][2]));
 				}
 			}
 		}
@@ -1354,10 +1349,9 @@ void CMy201611225View::OnConnectivity4()
 	OnImageloadJpeg();
 	ReadBinary();
 
-	labelno = 0;
-
-	std::map<int, int> same;
-	// zero padded matrix (height +1, width +1)
+	// labeling
+	int labelno = 0;
+	std::map<int, int> equitable;
 	for (int i = 1; i < imgHeight; i++)
 	{
 		for (int j = 1; j < imgWidth; j++)
@@ -1365,8 +1359,8 @@ void CMy201611225View::OnConnectivity4()
 			if (binary[i][j] == 1) {
 				if (binary[i - 1][j] == 1 && binary[i][j - 1] == 1) { //both
 					label[i][j] = label[i - 1][j]; // set top
-					if (label[i - 1][j] != label[i][j - 1])
-						same.insert(std::pair<int, int>(label[i - 1][j], label[i][j - 1]));
+					if (label[i][j - 1] != label[i - 1][j])
+						equitable.insert(std::pair<int, int>(label[i][j - 1], label[i - 1][j]));
 				}
 				else if (binary[i - 1][j] == 1 && binary[i][j - 1] == 0) { //top
 					label[i][j] = label[i - 1][j]; // set top
@@ -1374,64 +1368,102 @@ void CMy201611225View::OnConnectivity4()
 				else if (binary[i - 1][j] == 0 && binary[i][j - 1] == 1) { //left
 					label[i][j] = label[i][j - 1]; // set left
 				}
-				else {
+				else if (binary[i - 1][j] == 0 && binary[i][j - 1] == 0) { // none
 					label[i][j] = ++labelno; // set new
 				}
 			}
 		}
 	}
 
-	std::map<int, int>::iterator p;
-	std::queue<std::set> components;
-	for (std::map<int, int>::iterator it = same.begin(); it != same.end(); ++it) 
+	// aggregate into groups of each component
+	int groupno = 0;
+	std::deque<std::vector<int>> component;
+	for (std::map<int, int>::iterator entry = equitable.begin(); entry != equitable.end(); ++entry)
 	{
-		std::set<int> component;
-		int temp = it->fi;
-		group.insert(temp);
-		labelno--;
-		std::map<int, int>::iterator search;
-		while ((search = same.find(temp)) != same.end())
-		{
-			temp = search->second;
-			group.insert(temp);
-			labelno--;
+		int FIRST = - 1, SECOND = - 1;
+
+		for (int i = 0; i < groupno; i++) {
+			if (std::find(component[i].begin(), component[i].end(), entry->first) != component[i].end())
+				FIRST = i;
+			if (std::find(component[i].begin(), component[i].end(), entry->second) != component[i].end())
+				SECOND = i;
 		}
 
-	}
-	for (int i = 0; i < imgHeight; i++)
-	{
-		for (int j = 0; j < imgWidth; j++)
-		{
-			if (group.find(label[i][j]) != group.end())
-				label[i][j] = it->first;
+		if (FIRST == -1 && SECOND == -1) {
+			std::vector<int> temp;
+			temp.push_back(entry->first);
+			temp.push_back(entry->second);
+			component.push_back(temp);
+			groupno++;
+		}
+		else if (FIRST == -1 && SECOND >= 0) {
+			component[SECOND].push_back(entry->first);
+		}
+		else if (FIRST >= 0 && SECOND == -1) {
+			component[FIRST].push_back(entry->second);
+		}
+		else if (FIRST >= 0 && SECOND >= 0) {
+			std::vector<int> temp;
+			std::move(component[SECOND].begin(), component[SECOND].end(), std::back_inserter(component[FIRST]));
+			component.erase(component.begin() + SECOND);
+			groupno--;
 		}
 	}
-	
-	
-	srand(3);
-	randcolor = new int*[labelno];
-	for (int i = 0; i < labelno; i++) {
-		randcolor[i] = new int[3];
-		randcolor[i][0] = rand() % 256;
-		randcolor[i][1] = rand() % 256;
-		randcolor[i][2] = rand() % 256;
-	}
-	lookup = new int[labelno];
-	for (int k = 0; k < labelno; k++){
-		lookup[k] = 0;
-	}
-	int index = 0;
-	for (int i = 0; i < imgHeight; i++) {
-		for (int j = 0; j < imgWidth; j++) {
-			if (label[i][j] != 0)
-			{
-				int contains = false;
-				for (int k = 0; k <= index; k++) {
-					if (label[i][j] == lookup[k])
-						contains = true;
+
+	std::vector<int> intersect;
+	bool loop;
+	do {
+		loop = false;
+		for (int i = 0; i < groupno; i++) {
+			for (int j = 0; j < groupno; j++) {
+				if (i == j) 
+					continue;
+				std::sort(component[i].begin(), component[i].end());
+				std::sort(component[j].begin(), component[j].end());
+				set_intersection(component[i].begin(), component[i].end(), component[j].begin(), component[j].end(), back_inserter(intersect));
+				if (intersect.size() > 0) {
+					std::vector<int> temp;
+					std::move(component[j].begin(), component[j].end(), std::back_inserter(component[i]));
+					component.erase(component.begin() + j);
+					groupno--;
+					loop = true;
+					intersect.clear();
 				}
-				if (!contains) {
-					lookup[index++] = label[i][j];
+			}
+		}
+	} while (loop);
+	
+	
+	
+	srand(time(NULL));
+	randcolor = new int*[groupno];
+	for (int i = 0; i < groupno; i++) {
+		randcolor[i] = new int[3];
+		randcolor[i][0] = rand()*255;
+		randcolor[i][1] = 0;
+		randcolor[i][2] = rand() * 255;
+	}
+	ccacolor = new int** [imgHeight];
+	for (int i = 0; i < imgHeight; i++) {
+		ccacolor[i] = new int* [imgWidth];
+		for (int j = 0; j < imgWidth; j++) {
+			ccacolor[i][j] = new int[3];
+			
+
+			if (label[i][j] == 0)
+			{
+				ccacolor[i][j][0] = 0;
+				ccacolor[i][j][1] = 0;
+				ccacolor[i][j][2] = 0;
+			}
+			else
+			{
+				for (int k = 0; k < groupno; k++) {
+					if (std::find(component[k].begin(), component[k].end(), label[i][j]) != component[k].end()) {
+						ccacolor[i][j][0] = randcolor[k][0];
+						ccacolor[i][j][1] = randcolor[k][1];
+						ccacolor[i][j][2] = randcolor[k][2];
+					}
 				}
 			}
 		}
@@ -1440,9 +1472,4 @@ void CMy201611225View::OnConnectivity4()
 
 	viewType = 5;
 	Invalidate(TRUE);
-	//for (int i = 0; i < imgWidth; i++)
-	//{
-	//	binary[i] = new int[imgWidth];
-	//}
-	//binary = new int* [imgHeight];
 }
