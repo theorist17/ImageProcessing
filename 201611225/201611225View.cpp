@@ -186,9 +186,7 @@ void CMy201611225View::OnDraw(CDC* pDC)
 				}
 				else if (viewType == 5) 
 				{
-					if (label[i][j] != 0) {
-						pDC->SetPixel(p, RGB(colors[label[i][j]][0], colors[label[i][j]][1], colors[label[i][j]][2]));
-					}
+					pDC->SetPixel(p, RGB(ccacolor[i][j][0], ccacolor[i][j][1], ccacolor[i][j][2]));
 				}
 			}
 		}
@@ -611,19 +609,21 @@ void CMy201611225View::ReadIntensity()
 }
 void CMy201611225View::ReadBinary()
 {
-	binary = new int* [imgHeight + 1];
+	binary = new int* [imgHeight];
 	label = new int* [imgHeight];
-	binary[0] = new int[imgWidth + 1];
-	for (int i = 0; i < imgWidth; i++)
+	for (int i = 0; i < imgHeight; i++)
 	{
-		binary[i+1] = new int[imgWidth + 1];
+		binary[i] = new int[imgWidth];
 		label[i] = new int[imgWidth];
 	}
 	for (int i = 0; i < imgHeight; i++)
 	{
 		for (int j = 0; j < imgWidth; j++)
 		{
-			binary[i + 1][j + 1] = ((rgbBuffer[i][j].rgbBlue + rgbBuffer[i][j].rgbGreen + rgbBuffer[i][j].rgbRed) / 3 >= 128) ? 1 : 0;
+			int blue = rgbBuffer[i][j].rgbBlue;
+			int green = rgbBuffer[i][j].rgbGreen;
+			int red = rgbBuffer[i][j].rgbRed;
+			binary[i][j] = ((red+green+blue)  >= 384) ? 1 : 0;
 			label[i][j] = 0;
 		}
 	}
@@ -1147,6 +1147,7 @@ void CMy201611225View::OnMotion3ss()
 
 	// Coordinate of block to track
 	int trackingRow = 21, trackingCol = 10, frameTracked = false; // 334
+	// int trackingRow = 42, trackingCol = 20, frameTracked = false; // 334
 	//int trackingRow = 18, trackingCol = 14, frameTracked = false; // 378
 	
 
@@ -1327,7 +1328,7 @@ void CMy201611225View::OnMotion3ss()
 		}
 		
 		// Wait for 30ms, break if key interrupt
-		if (waitKey(30000) >= 0)
+		if (waitKey(30) >= 0)
 			break;		
 
 		// Read each frame
@@ -1348,44 +1349,127 @@ void CMy201611225View::OnConnectivity4()
 	OnImageloadJpeg();
 	ReadBinary();
 
-	labels = 0;
-	// zero padded matrix (height +1, width +1)
-	for (int i = 0; i < imgHeight + 1; i++)
+	// labeling
+	int labelno = 0;
+	std::map<int, int> equitable;
+	for (int i = 1; i < imgHeight; i++)
 	{
-		for (int j = 0; j < imgWidth + 1; j++)
+		for (int j = 1; j < imgWidth; j++)
 		{
 			if (binary[i][j] == 1) {
-				if (binary[i - 1][j] == 1 && binary[i][j - 1] == 0) { //top
-					label[i][j] = label[i - 1][j];
+				if (binary[i - 1][j] == 1 && binary[i][j - 1] == 1) { //both
+					label[i][j] = label[i - 1][j]; // set top
+					if (label[i][j - 1] != label[i - 1][j])
+						equitable.insert(std::pair<int, int>(label[i][j - 1], label[i - 1][j]));
+				}
+				else if (binary[i - 1][j] == 1 && binary[i][j - 1] == 0) { //top
+					label[i][j] = label[i - 1][j]; // set top
 				}
 				else if (binary[i - 1][j] == 0 && binary[i][j - 1] == 1) { //left
-					label[i][j] = label[i][j -1];
+					label[i][j] = label[i][j - 1]; // set left
 				}
-				else if (binary[i - 1][j] == 1 && binary[i][j - 1] == 1) { //both
-					label[i][j] = label[i-1][j];
-				}
-				else {
-					label[i][j] = labels++;
+				else if (binary[i - 1][j] == 0 && binary[i][j - 1] == 0) { // none
+					label[i][j] = ++labelno; // set new
 				}
 			}
 		}
 	}
 
-	colors = new int*[labels];
-	srand(3);
-	for (int i = 0; i < labels; i++) {
-		colors[i] = new int[3];
-		colors[i][0] = rand() % 256;	
-		colors[i][1] = rand() % 256;	
-		colors[i][2] = rand() % 256;	
+	// aggregate into groups of each component
+	int groupno = 0;
+	std::deque<std::vector<int>> component;
+	for (std::map<int, int>::iterator entry = equitable.begin(); entry != equitable.end(); ++entry)
+	{
+		int FIRST = - 1, SECOND = - 1;
+
+		for (int i = 0; i < groupno; i++) {
+			if (std::find(component[i].begin(), component[i].end(), entry->first) != component[i].end())
+				FIRST = i;
+			if (std::find(component[i].begin(), component[i].end(), entry->second) != component[i].end())
+				SECOND = i;
+		}
+
+		if (FIRST == -1 && SECOND == -1) {
+			std::vector<int> temp;
+			temp.push_back(entry->first);
+			temp.push_back(entry->second);
+			component.push_back(temp);
+			groupno++;
+		}
+		else if (FIRST == -1 && SECOND >= 0) {
+			component[SECOND].push_back(entry->first);
+		}
+		else if (FIRST >= 0 && SECOND == -1) {
+			component[FIRST].push_back(entry->second);
+		}
+		else if (FIRST >= 0 && SECOND >= 0) {
+			std::vector<int> temp;
+			std::move(component[SECOND].begin(), component[SECOND].end(), std::back_inserter(component[FIRST]));
+			component.erase(component.begin() + SECOND);
+			groupno--;
+		}
+	}
+
+	std::vector<int> intersect;
+	bool loop;
+	do {
+		loop = false;
+		for (int i = 0; i < groupno; i++) {
+			for (int j = 0; j < groupno; j++) {
+				if (i == j) 
+					continue;
+				std::sort(component[i].begin(), component[i].end());
+				std::sort(component[j].begin(), component[j].end());
+				set_intersection(component[i].begin(), component[i].end(), component[j].begin(), component[j].end(), back_inserter(intersect));
+				if (intersect.size() > 0) {
+					std::vector<int> temp;
+					std::move(component[j].begin(), component[j].end(), std::back_inserter(component[i]));
+					component.erase(component.begin() + j);
+					groupno--;
+					loop = true;
+					intersect.clear();
+				}
+			}
+		}
+	} while (loop);
+	
+	
+	
+	srand(time(NULL));
+	randcolor = new int*[groupno];
+	for (int i = 0; i < groupno; i++) {
+		randcolor[i] = new int[3];
+		randcolor[i][0] = rand()*255;
+		randcolor[i][1] = 0;
+		randcolor[i][2] = rand() * 255;
+	}
+	ccacolor = new int** [imgHeight];
+	for (int i = 0; i < imgHeight; i++) {
+		ccacolor[i] = new int* [imgWidth];
+		for (int j = 0; j < imgWidth; j++) {
+			ccacolor[i][j] = new int[3];
+			
+
+			if (label[i][j] == 0)
+			{
+				ccacolor[i][j][0] = 0;
+				ccacolor[i][j][1] = 0;
+				ccacolor[i][j][2] = 0;
+			}
+			else
+			{
+				for (int k = 0; k < groupno; k++) {
+					if (std::find(component[k].begin(), component[k].end(), label[i][j]) != component[k].end()) {
+						ccacolor[i][j][0] = randcolor[k][0];
+						ccacolor[i][j][1] = randcolor[k][1];
+						ccacolor[i][j][2] = randcolor[k][2];
+					}
+				}
+			}
+		}
 	}
 
 
 	viewType = 5;
 	Invalidate(TRUE);
-	//for (int i = 0; i < imgWidth; i++)
-	//{
-	//	binary[i] = new int[imgWidth];
-	//}
-	//binary = new int* [imgHeight];
 }
