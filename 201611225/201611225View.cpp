@@ -623,7 +623,10 @@ void CMy201611225View::ReadBinary()
 			int blue = rgbBuffer[i][j].rgbBlue;
 			int green = rgbBuffer[i][j].rgbGreen;
 			int red = rgbBuffer[i][j].rgbRed;
-			binary[i][j] = ((red+green+blue)  >= 384) ? 1 : 0;
+			if ((red + green + blue) > 20)
+				binary[i][j] = 1;
+			else
+				binary[i][j] = 0;
 			label[i][j] = 0;
 		}
 	}
@@ -1351,7 +1354,8 @@ void CMy201611225View::OnConnectivity4()
 
 	// labeling
 	int labelno = 0;
-	std::map<int, int> equitable;
+	//std::map<int, int> equivalent;
+	std::vector<std::pair<int, int>> equivalent;
 	for (int i = 1; i < imgHeight; i++)
 	{
 		for (int j = 1; j < imgWidth; j++)
@@ -1360,7 +1364,7 @@ void CMy201611225View::OnConnectivity4()
 				if (binary[i - 1][j] == 1 && binary[i][j - 1] == 1) { //both
 					label[i][j] = label[i - 1][j]; // set top
 					if (label[i][j - 1] != label[i - 1][j])
-						equitable.insert(std::pair<int, int>(label[i][j - 1], label[i - 1][j]));
+						equivalent.push_back(std::make_pair(label[i-1][j], label[i][j-1]));
 				}
 				else if (binary[i - 1][j] == 1 && binary[i][j - 1] == 0) { //top
 					label[i][j] = label[i - 1][j]; // set top
@@ -1374,42 +1378,50 @@ void CMy201611225View::OnConnectivity4()
 			}
 		}
 	}
+	std::sort(equivalent.begin(), equivalent.end());
+	equivalent.erase(unique(equivalent.begin(), equivalent.end()), equivalent.end());
 
 	// aggregate into groups of each component
 	int groupno = 0;
 	std::deque<std::vector<int>> component;
-	for (std::map<int, int>::iterator entry = equitable.begin(); entry != equitable.end(); ++entry)
+	for (int n = 0 ; n < equivalent.size(); n++)
 	{
-		int FIRST = - 1, SECOND = - 1;
+		int FIRSTGROUP = - 1, SECONDGROUP = - 1;
 
+		// find group index for the left and right value in each entry
 		for (int i = 0; i < groupno; i++) {
-			if (std::find(component[i].begin(), component[i].end(), entry->first) != component[i].end())
-				FIRST = i;
-			if (std::find(component[i].begin(), component[i].end(), entry->second) != component[i].end())
-				SECOND = i;
+			if (std::find(component[i].begin(), component[i].end(), equivalent[n].first) != component[i].end())
+				FIRSTGROUP = i;
+			if (std::find(component[i].begin(), component[i].end(), equivalent[n].second) != component[i].end())
+				SECONDGROUP = i;
 		}
 
-		if (FIRST == -1 && SECOND == -1) {
+		// add new group
+		if (FIRSTGROUP == -1 && SECONDGROUP == -1) {
 			std::vector<int> temp;
-			temp.push_back(entry->first);
-			temp.push_back(entry->second);
+			temp.push_back(equivalent[n].first);
+			temp.push_back(equivalent[n].second);
 			component.push_back(temp);
 			groupno++;
 		}
-		else if (FIRST == -1 && SECOND >= 0) {
-			component[SECOND].push_back(entry->first);
+		// add member to a group
+		else if (FIRSTGROUP == -1 && SECONDGROUP >= 0) {
+			component[SECONDGROUP].push_back(equivalent[n].first);
 		}
-		else if (FIRST >= 0 && SECOND == -1) {
-			component[FIRST].push_back(entry->second);
+		// add member to a group
+		else if (FIRSTGROUP >= 0 && SECONDGROUP == -1) {
+			component[FIRSTGROUP].push_back(equivalent[n].second);
 		}
-		else if (FIRST >= 0 && SECOND >= 0) {
+		// merge two group into one and erase the other one
+		else if (FIRSTGROUP >= 0 && SECONDGROUP >= 0 && FIRSTGROUP != SECONDGROUP) {
 			std::vector<int> temp;
-			std::move(component[SECOND].begin(), component[SECOND].end(), std::back_inserter(component[FIRST]));
-			component.erase(component.begin() + SECOND);
+			std::move(component[SECONDGROUP].begin(), component[SECONDGROUP].end(), std::back_inserter(component[FIRSTGROUP]));
+			component.erase(component.begin() + SECONDGROUP);
 			groupno--;
 		}
 	}
 
+	// iteratively merge so that no intersection remains among each group
 	std::vector<int> intersect;
 	bool loop;
 	do {
@@ -1418,11 +1430,14 @@ void CMy201611225View::OnConnectivity4()
 			for (int j = 0; j < groupno; j++) {
 				if (i == j) 
 					continue;
+
+				// sort and find intersection
 				std::sort(component[i].begin(), component[i].end());
 				std::sort(component[j].begin(), component[j].end());
 				set_intersection(component[i].begin(), component[i].end(), component[j].begin(), component[j].end(), back_inserter(intersect));
 				if (intersect.size() > 0) {
 					std::vector<int> temp;
+					// merge into one and erase the other one
 					std::move(component[j].begin(), component[j].end(), std::back_inserter(component[i]));
 					component.erase(component.begin() + j);
 					groupno--;
@@ -1433,30 +1448,27 @@ void CMy201611225View::OnConnectivity4()
 		}
 	} while (loop);
 	
-	
-	
+	// pick colors for each group
 	srand(time(NULL));
 	randcolor = new int*[groupno];
 	for (int i = 0; i < groupno; i++) {
 		randcolor[i] = new int[3];
-		randcolor[i][0] = rand()*255;
-		randcolor[i][1] = 0;
+		randcolor[i][0] = rand() * 255;
+		randcolor[i][1] = rand() * 255;
 		randcolor[i][2] = rand() * 255;
 	}
+
+	// prepare pixel for each group
 	ccacolor = new int** [imgHeight];
 	for (int i = 0; i < imgHeight; i++) {
 		ccacolor[i] = new int* [imgWidth];
 		for (int j = 0; j < imgWidth; j++) {
 			ccacolor[i][j] = new int[3];
-			
+			ccacolor[i][j][0] = 0;
+			ccacolor[i][j][1] = 0;
+			ccacolor[i][j][2] = 0;
 
-			if (label[i][j] == 0)
-			{
-				ccacolor[i][j][0] = 0;
-				ccacolor[i][j][1] = 0;
-				ccacolor[i][j][2] = 0;
-			}
-			else
+			if (label[i][j] != 0)
 			{
 				for (int k = 0; k < groupno; k++) {
 					if (std::find(component[k].begin(), component[k].end(), label[i][j]) != component[k].end()) {
@@ -1468,7 +1480,6 @@ void CMy201611225View::OnConnectivity4()
 			}
 		}
 	}
-
 
 	viewType = 5;
 	Invalidate(TRUE);

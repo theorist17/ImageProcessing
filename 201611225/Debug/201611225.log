@@ -13,12 +13,13 @@ c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\2016
 c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(425): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(564): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(580): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(649): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(739): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(824): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(892): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1030): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1299): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1300): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1438): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(652): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(742): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(827): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(895): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1033): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1302): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1303): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1387): warning C4018: '<': signed/unsigned mismatch
+c:\users\theorist\documents\visual studio 2019\projects\201611225\201611225\201611225view.cpp(1452): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   201611225.vcxproj -> C:\Users\theorist\Documents\Visual Studio 2019\Projects\201611225\Debug\201611225.exe
