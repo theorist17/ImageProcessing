@@ -62,8 +62,8 @@ public:
 	// Bitscale
 	int** binary;
 	int** label;
-	int*** ccacolor;
 	int** randcolor;
+	int*** ccacolor;
 
 	int intenHisto[256];
 	int intenEqual[256];
@@ -118,6 +118,7 @@ public:
 	afx_msg void OnImageloadAvi();
 	afx_msg void OnMotion3ss();
 	afx_msg void OnConnectivity4();
+	afx_msg void OnConnectivity8();
 };
 
 #ifndef _DEBUG  // debug version in 201611225View.cpp
