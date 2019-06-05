@@ -1,9 +1,4 @@
-﻿  201611225.cpp
-c:\opencv\build\include\opencv2\core\mat.hpp(1964): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-  201611225View.cpp
+﻿  201611225View.cpp
 c:\opencv\build\include\opencv2\core\mat.hpp(1964): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
@@ -33,9 +28,11 @@ c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\2016
 c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1689): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1705): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1706): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1749): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1750): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1766): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1767): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-  Generating Code...
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1739): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1740): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1756): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1757): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1797): warning C4101: 'two_minus_y': unreferenced local variable
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1797): warning C4101: 'two_minus_x': unreferenced local variable
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1799): warning C4101: 'pixel': unreferenced local variable
   201611225.vcxproj -> C:\Users\theorist\Documents\Visual Studio 2017\Projects\201611225\Debug\201611225.exe

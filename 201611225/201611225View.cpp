@@ -1729,6 +1729,57 @@ void CMy201611225View::OnScalingBilinearinterpolation()
 
 }
 
+void CMy201611225View::OnScalingBsplineinterpolation()
+{
+	OnImageloadBmp();
+
+	float x_scale_factor = 1;
+	float y_scale_factor = 0.5;
+
+	scaledHeight = (imgHeight - 3) * y_scale_factor;
+	scaledWidth = (imgWidth - 3) * x_scale_factor;
+
+	scaled = new RGBQUAD * [scaledHeight];
+	for (int i = 0; i < scaledHeight; i++)
+		scaled[i] = new RGBQUAD[scaledWidth];
+
+	float xinsource, yinsource, xdiff, ydiff;
+	int intofx, intofy;
+	BYTE red[4][4], green[4][4], blue[4][4];
+	for (int y = 0; y < scaledHeight; y++)
+	{
+		for (int x = 0; x < scaledWidth; x++)
+		{
+			// find x, y coordinates mapped to source image for each destination pixel
+			xinsource = x / x_scale_factor + 1;
+			yinsource = y / y_scale_factor + 1;
+			intofx = floor(xinsource);
+			intofy = floor(yinsource);
+			xdiff = xinsource - intofx;
+			ydiff = yinsource - intofy;
+
+			// red, green, blue are BYTE arrays to be passed for channel-specific interpolation
+			for (int i = -1; i < 3; i++)
+			{
+				for (int j = -1; j < 3; j++)
+				{
+					red[i+1][j+1] = rgbBuffer[intofy + i][intofx + j].rgbRed;
+					green[i+1][j+1] = rgbBuffer[intofy + i][intofx + j].rgbGreen;
+					blue[i+1][j+1] = rgbBuffer[intofy + i][intofx + j].rgbBlue;
+				}
+			}
+
+			// calculate target pixel's rgb value
+			scaled[y][x].rgbRed = bspline_interpolation(red, xdiff, ydiff);
+			scaled[y][x].rgbGreen = bspline_interpolation(green, xdiff, ydiff);
+			scaled[y][x].rgbBlue = bspline_interpolation(blue, xdiff, ydiff);
+		}
+	}
+
+	viewType = 9;
+}
+
+
 BYTE CMy201611225View::bilinear_interpolation(BYTE image[2][2], float EWweight, float NSweight)
 {
 	float NW = image[0][0], NE = image[0][1], SW = image[1][0], SE = image[1][1];
@@ -1737,54 +1788,59 @@ BYTE CMy201611225View::bilinear_interpolation(BYTE image[2][2], float EWweight, 
 	return (BYTE)(EWtop + NSweight * (EWbottom - EWtop)); // third interpoation
 }
 
-
-
-void CMy201611225View::OnScalingBsplineinterpolation()
+BYTE CMy201611225View::bspline_interpolation(BYTE image[4][4], float x, float y)
 {
-	OnImageloadBmp();
+	double column[4]; // sotarage for row interpolation results
+	double a0, a1, a2, a3; // interpolation coefficients
+	double x_plus_1, y_plus_1; // x+1, y+1
+	double one_minus_x, one_minus_y; // 1-x, 1-y
+	double two_minus_x, two_minus_y; // 2-x, 2-y
+	int i; // loop index
+	double pixel; // newly interpolated pixel value
 
-	float x_scale_factor = 2;
-	float y_scale_factor = 1;
-
-	scaledHeight = (imgHeight - 1) * y_scale_factor;
-	scaledWidth = (imgWidth - 1) * x_scale_factor;
-
-	scaled = new RGBQUAD * [scaledHeight];
-	for (int i = 0; i < scaledHeight; i++)
-		scaled[i] = new RGBQUAD[scaledWidth];
-
-	float xinsource, yinsource, EWweight, NSweight;
-	int intofx, intofy;
-	BYTE red[2][2], green[2][2], blue[2][2];
-	for (int y = 0; y < scaledHeight; y++)
+	// Do we even need to interpolate?
+	if ((x == 0.0) && (y == 0.0)) return image[1][1];
+	
+	// Do we need to interpolate the rows?
+	if (x == 0.0)
 	{
-		for (int x = 0; x < scaledWidth; x++)
-		{
-			// find x, y coordinates mapped to source image for each destination pixel
-			xinsource = x / x_scale_factor;
-			yinsource = y / y_scale_factor;
-			intofx = floor(xinsource);
-			intofy = floor(yinsource);
-			EWweight = xinsource - intofx;
-			NSweight = yinsource - intofy;
-
-			// red, green, blue are BYTE arrays to be passed for channel-specific interpolation
-			for (int i = 0; i < 2; i++)
-			{
-				for (int j = 0; j < 2; j++)
-				{
-					red[i][j] = rgbBuffer[intofy + i][intofx + j].rgbRed;
-					green[i][j] = rgbBuffer[intofy + i][intofx + j].rgbGreen;
-					blue[i][j] = rgbBuffer[intofy + i][intofx + j].rgbBlue;
-				}
-			}
-
-			// calculate target pixel's rgb value
-			scaled[y][x].rgbRed = bilinear_interpolation(red, EWweight, NSweight);
-			scaled[y][x].rgbGreen = bilinear_interpolation(green, EWweight, NSweight);
-			scaled[y][x].rgbBlue = bilinear_interpolation(blue, EWweight, NSweight);
-		}
+		// No
+		for (i = 0; i < 4; i++)
+			column[i] = (double)image[i][1];
 	}
+	else
+	{
+		// Yes, interpolate the rows.
+		x_plus_1 = x + 1.0;
+		one_minus_x = 1.0 - x;
 
-	viewType = 9;
+		a0 = ((-0.16666666 * x_plus_1 + 1.0) * x_plus_1 - 2.0) * x_plus_1 + 1.33333;
+		a1 = (0.5 * x - 1.0) * x * x + 0.66666667;
+		a2 = (0.5 * one_minus_x - 1.0) * one_minus_x * one_minus_x + 0.66666667;
+		a3 = 1.0 - a0 - a1 - a2;
+
+		// Will there be vertical interpolation?
+		if (y == 0.0)
+		{
+			// No, return horizontally interpolated values
+			return (BYTE)(a0 * image[1][0] + a1 * image[1][1] + a2 * image[1][2] + a3 * image[1][3]);
+		}
+		else
+		{
+			// Yes, store horizontally interpolated values
+			for (i = 0; i < 4; i++)
+				column[i] = (double)(a0 * image[i][0] + a1 * image[i][1] + a2 * image[i][2] * a3 * image[i][3]);
+		}
+
+		y_plus_1 = y + 1.0;
+		one_minus_y = 1.0 - y;
+
+		a0 = ((-0.16666666 * y_plus_1 + 1.0) * y_plus_1 - 2.0) * y_plus_1 + 1.33333;
+		a1 = (0.5 * y - 1.0) * y * y + 0.66666667;
+		a2 = (0.5 * one_minus_y - 1.0) * one_minus_y * one_minus_y + 0.66666667;
+		a3 = 1.0 - a0 - a1 - a2;
+
+		return (BYTE)(a0 * column[0] + a1 * column[1] + a2 * column[2] + a3 * column[3]);
+	}
+	return 0;
 }

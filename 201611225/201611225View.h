@@ -127,9 +127,9 @@ public:
 	afx_msg void OnConnectivity4();
 	afx_msg void OnConnectivity8();
 	afx_msg void OnScalingBilinearinterpolation();
-	BYTE bilinear_interpolation(BYTE image[2][2], float EWweight, float NSweight);
 	afx_msg void OnScalingBsplineinterpolation();
-	BYTE bspline_interpolation(BYTE image[4][4], float EWweight, float NSweight);
+	BYTE bilinear_interpolation(BYTE image[2][2], float EWweight, float NSweight);
+	BYTE bspline_interpolation(BYTE image[4][4], float x, float y);
 };
 
 #ifndef _DEBUG  // debug version in 201611225View.cpp
