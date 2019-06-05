@@ -1150,9 +1150,11 @@ void CMy201611225View::OnMotion3ss()
 	int MAXCOLS = prev.cols / BLOCK_SIZE;
 
 	// Coordinate of block to track
-	int trackingRow = 21, trackingCol = 10, frameTracked = false; // 334
+	//int trackingRow = 21, trackingCol = 10, frameTracked = false; // 334
 	// int trackingRow = 42, trackingCol = 20, frameTracked = false; // 334
 	//int trackingRow = 18, trackingCol = 14, frameTracked = false; // 378
+	int trackingRow = 14, trackingCol = 31, frameTracked = false; // Library
+
 	
 
 	for (int framecnt = 0; ; framecnt++)
@@ -1332,7 +1334,7 @@ void CMy201611225View::OnMotion3ss()
 		}
 		
 		// Wait for 30ms, break if key interrupt
-		if (waitKey(30) >= 0)
+		if (waitKey(1) >= 0)
 			break;		
 
 		// Read each frame

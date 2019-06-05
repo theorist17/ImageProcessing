@@ -1,11 +1,4 @@
-﻿  stdafx.cpp
-  201611225.cpp
-c:\opencv\build\include\opencv2\core\mat.hpp(1964): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-  201611225Doc.cpp
-  201611225View.cpp
+﻿  201611225View.cpp
 c:\opencv\build\include\opencv2\core\mat.hpp(1964): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
@@ -25,15 +18,10 @@ c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\2016
 c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(828): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(896): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1034): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1303): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1304): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1394): warning C4018: '<': signed/unsigned mismatch
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1459): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1556): warning C4018: '<': signed/unsigned mismatch
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1621): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  Jpegfile.cpp
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\jpegfile.cpp(139): warning C4101: 'buf': unreferenced local variable
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\jpegfile.cpp(314): warning C4101: 'buf': unreferenced local variable
-  MainFrm.cpp
-  Generating Code...
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1305): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1306): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1396): warning C4018: '<': signed/unsigned mismatch
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1461): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1558): warning C4018: '<': signed/unsigned mismatch
+c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1623): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   201611225.vcxproj -> C:\Users\theorist\Documents\Visual Studio 2017\Projects\201611225\Debug\201611225.exe
