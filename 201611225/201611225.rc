@@ -179,6 +179,11 @@ BEGIN
         MENUITEM "4-CCA Colorization",          ID_CONNECTIVITY_4
         MENUITEM "8-CCA Colorization",          ID_CONNECTIVITY_8
     END
+    POPUP "Scaling"
+    BEGIN
+        MENUITEM "Bilinear Interpolation",      ID_SCALING_BILINEARINTERPOLATION
+        MENUITEM "B-Spline Interpolation",      ID_SCALING_B32801
+    END
 END
 
 

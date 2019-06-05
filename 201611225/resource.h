@@ -28,13 +28,18 @@
 #define ID_MOTION_3SS                   32794
 #define ID_CONNECTIVITY_4               32795
 #define ID_CONNECTIVITY_8               32796
+#define ID_SCALING_BILINEAR             32797
+#define ID_SCALING_B                    32798
+#define ID_SCALING                      32799
+#define ID_SCALING_BILINEARINTERPOLATION 32800
+#define ID_SCALING_B32801               32801
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32797
+#define _APS_NEXT_COMMAND_VALUE         32802
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

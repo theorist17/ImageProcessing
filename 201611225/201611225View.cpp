@@ -43,6 +43,8 @@ BEGIN_MESSAGE_MAP(CMy201611225View, CView)
 	ON_COMMAND(ID_MOTION_3SS, &CMy201611225View::OnMotion3ss)
 	ON_COMMAND(ID_CONNECTIVITY_4, &CMy201611225View::OnConnectivity4)
 	ON_COMMAND(ID_CONNECTIVITY_8, &CMy201611225View::OnConnectivity8)
+	ON_COMMAND(ID_SCALING_BILINEARINTERPOLATION, &CMy201611225View::OnScalingBilinearinterpolation)
+	ON_COMMAND(ID_SCALING_B32801, &CMy201611225View::OnScalingBsplineinterpolation)
 END_MESSAGE_MAP()
 
 // CMy201611225View construction/destruction
@@ -138,59 +140,77 @@ void CMy201611225View::OnDraw(CDC* pDC)
 	int color = 0;
 	if (rgbBuffer != NULL)
 	{
-		for (int i = 0; i < imgHeight; i++)
+		if (viewType != 9)
 		{
-			for (int j = 0; j < imgWidth; j++)
+			POINT p; // setting position of output pixel
+			for (int i = 0; i < imgHeight; i++)
 			{
-				POINT p; // setting position of output pixel
-				p.x = j;
-				p.y = i;
-
-				pDC->SetPixel(p, RGB(rgbBuffer[i][j].rgbRed, rgbBuffer[i][j].rgbGreen, rgbBuffer[i][j].rgbBlue));
-
-				if (viewType == 2)
+				for (int j = 0; j < imgWidth; j++)
 				{
-					p.x = j + imgWidth + 10;
-					p.y = i;
-					pDC->SetPixel(p, RGB(hueBuffer[i][j], hueBuffer[i][j], hueBuffer[i][j]));
-
-					p.x = j + imgWidth + 10;
-					p.y = i + imgWidth + 10;
-					pDC->SetPixel(p, RGB(satuBuffer[i][j], satuBuffer[i][j], satuBuffer[i][j]));
-
 					p.x = j;
-					p.y = i + imgWidth + 10;
-					pDC->SetPixel(p, RGB(intenBuffer[i][j], intenBuffer[i][j], intenBuffer[i][j]));
+					p.y = i;
 
-				}
-				else if (viewType == 3) 
-				{
-					p.x = j + imgWidth + 10;
-					p.y = i;
-					pDC->SetPixel(p, RGB(intensity[i][j], intensity[i][j], intensity[i][j]));
+					pDC->SetPixel(p, RGB(rgbBuffer[i][j].rgbRed, rgbBuffer[i][j].rgbGreen, rgbBuffer[i][j].rgbBlue));
 
-				}
-				else if (viewType == 4)
-				{
-					p.x = j + imgWidth + 10;
-					p.y = i;
-					pDC->SetPixel(p, RGB(intenNext[i][j], intenNext[i][j], intenNext[i][j]));
-/*
-					p.x = j + 2 * imgWidth + 20;
-					p.y = i;
-					pDC->SetPixel(p, RGB(intensity[i][j], intensity[i][j], intensity[i][j]));*/
+					if (viewType == 2)
+					{
+						p.x = j + imgWidth + 10;
+						p.y = i;
+						pDC->SetPixel(p, RGB(hueBuffer[i][j], hueBuffer[i][j], hueBuffer[i][j]));
 
-					p.x = j + 2 * imgWidth + 20;
-					p.y = i;
-					pDC->SetPixel(p, RGB(intensity[i][j] - intenNext[i][j], intensity[i][j] - intenNext[i][j], intensity[i][j] - intenNext[i][j]));
-					diff += (intensity[i][j] - intenNext[i][j]);
-				}
-				else if (viewType == 5) 
-				{
-					pDC->SetPixel(p, RGB(ccacolor[i][j][0], ccacolor[i][j][1], ccacolor[i][j][2]));
+						p.x = j + imgWidth + 10;
+						p.y = i + imgWidth + 10;
+						pDC->SetPixel(p, RGB(satuBuffer[i][j], satuBuffer[i][j], satuBuffer[i][j]));
+
+						p.x = j;
+						p.y = i + imgWidth + 10;
+						pDC->SetPixel(p, RGB(intenBuffer[i][j], intenBuffer[i][j], intenBuffer[i][j]));
+
+					}
+					else if (viewType == 3)
+					{
+						p.x = j + imgWidth + 10;
+						p.y = i;
+						pDC->SetPixel(p, RGB(intensity[i][j], intensity[i][j], intensity[i][j]));
+
+					}
+					else if (viewType == 4)
+					{
+						p.x = j + imgWidth + 10;
+						p.y = i;
+						pDC->SetPixel(p, RGB(intenNext[i][j], intenNext[i][j], intenNext[i][j]));
+						/*
+											p.x = j + 2 * imgWidth + 20;
+											p.y = i;
+											pDC->SetPixel(p, RGB(intensity[i][j], intensity[i][j], intensity[i][j]));*/
+
+						p.x = j + 2 * imgWidth + 20;
+						p.y = i;
+						pDC->SetPixel(p, RGB(intensity[i][j] - intenNext[i][j], intensity[i][j] - intenNext[i][j], intensity[i][j] - intenNext[i][j]));
+						diff += (intensity[i][j] - intenNext[i][j]);
+					}
+					else if (viewType == 5)
+					{
+						pDC->SetPixel(p, RGB(ccacolor[i][j][0], ccacolor[i][j][1], ccacolor[i][j][2]));
+					}
 				}
 			}
 		}
+		else
+		{
+			POINT p; // setting position of output pixel
+			for (int i = 0; i < scaledHeight; i++)
+			{
+				for (int j = 0; j < scaledWidth; j++)
+				{
+					p.x = j;
+					p.y = i;
+
+					pDC->SetPixel(p, RGB(scaled[i][j].rgbRed, scaled[i][j].rgbGreen, scaled[i][j].rgbBlue));
+				}
+			}
+		}
+		
 	}
 
 	
@@ -1654,4 +1674,117 @@ void CMy201611225View::OnConnectivity8()
 
 	viewType = 5;
 	Invalidate(TRUE);
+}
+
+
+
+void CMy201611225View::OnScalingBilinearinterpolation()
+{
+	OnImageloadBmp();
+
+	float x_scale_factor = 2;
+	float y_scale_factor = 1;
+
+	scaledHeight = (imgHeight - 1) * y_scale_factor;
+	scaledWidth = (imgWidth - 1) * x_scale_factor;
+	
+	scaled = new RGBQUAD * [scaledHeight];
+	for (int i = 0; i < scaledHeight; i++)
+		scaled[i] = new RGBQUAD[scaledWidth];
+
+	float xinsource, yinsource, EWweight, NSweight;
+	int intofx, intofy;
+	BYTE red[2][2], green[2][2], blue[2][2];
+	for (int y = 0; y < scaledHeight; y++)
+	{
+		for (int x = 0; x < scaledWidth; x++)
+		{
+			// find x, y coordinates mapped to source image for each destination pixel
+			xinsource = x / x_scale_factor;
+			yinsource = y / y_scale_factor;
+			intofx = floor(xinsource);
+			intofy = floor(yinsource);
+			EWweight = xinsource - intofx;
+			NSweight = yinsource - intofy;
+
+			// red, green, blue are BYTE arrays to be passed for channel-specific interpolation
+			for (int i = 0; i < 2; i++)
+			{
+				for (int j = 0; j < 2; j++)
+				{
+					red[i][j] = rgbBuffer[intofy + i][intofx + j].rgbRed;
+					green[i][j] = rgbBuffer[intofy + i][intofx + j].rgbGreen;
+					blue[i][j] = rgbBuffer[intofy + i][intofx + j].rgbBlue;
+				}
+			}
+			
+			// calculate target pixel's rgb value
+			scaled[y][x].rgbRed = bilinear_interpolation(red, EWweight, NSweight);
+			scaled[y][x].rgbGreen = bilinear_interpolation(green, EWweight, NSweight);
+			scaled[y][x].rgbBlue = bilinear_interpolation(blue, EWweight, NSweight);
+		}
+	}
+
+	viewType = 9;
+
+}
+
+BYTE CMy201611225View::bilinear_interpolation(BYTE image[2][2], float EWweight, float NSweight)
+{
+	float NW = image[0][0], NE = image[0][1], SW = image[1][0], SE = image[1][1];
+	float EWtop = NW + EWweight * (NE - NW); // first interpolation
+	float EWbottom = SW + EWweight * (SE - SW); // second interpolation
+	return (BYTE)(EWtop + NSweight * (EWbottom - EWtop)); // third interpoation
+}
+
+
+
+void CMy201611225View::OnScalingBsplineinterpolation()
+{
+	OnImageloadBmp();
+
+	float x_scale_factor = 2;
+	float y_scale_factor = 1;
+
+	scaledHeight = (imgHeight - 1) * y_scale_factor;
+	scaledWidth = (imgWidth - 1) * x_scale_factor;
+
+	scaled = new RGBQUAD * [scaledHeight];
+	for (int i = 0; i < scaledHeight; i++)
+		scaled[i] = new RGBQUAD[scaledWidth];
+
+	float xinsource, yinsource, EWweight, NSweight;
+	int intofx, intofy;
+	BYTE red[2][2], green[2][2], blue[2][2];
+	for (int y = 0; y < scaledHeight; y++)
+	{
+		for (int x = 0; x < scaledWidth; x++)
+		{
+			// find x, y coordinates mapped to source image for each destination pixel
+			xinsource = x / x_scale_factor;
+			yinsource = y / y_scale_factor;
+			intofx = floor(xinsource);
+			intofy = floor(yinsource);
+			EWweight = xinsource - intofx;
+			NSweight = yinsource - intofy;
+
+			// red, green, blue are BYTE arrays to be passed for channel-specific interpolation
+			for (int i = 0; i < 2; i++)
+			{
+				for (int j = 0; j < 2; j++)
+				{
+					red[i][j] = rgbBuffer[intofy + i][intofx + j].rgbRed;
+					green[i][j] = rgbBuffer[intofy + i][intofx + j].rgbGreen;
+					blue[i][j] = rgbBuffer[intofy + i][intofx + j].rgbBlue;
+				}
+			}
+
+			// calculate target pixel's rgb value
+			scaled[y][x].rgbRed = bilinear_interpolation(red, EWweight, NSweight);
+			scaled[y][x].rgbGreen = bilinear_interpolation(green, EWweight, NSweight);
+			scaled[y][x].rgbBlue = bilinear_interpolation(blue, EWweight, NSweight);
+		}
+	}
+
+	viewType = 9;
 }

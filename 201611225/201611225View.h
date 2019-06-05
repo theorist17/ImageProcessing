@@ -40,13 +40,15 @@ protected: // create from serialization only
 public:
 	CMy201611225Doc* GetDocument() const;
 
+	// View type flag
+	int viewType;
+
 	// Bitmap info
 	RGBQUAD** rgbBuffer; // double pointer to image
 	int imgHeight;
 	int imgWidth;
 	BITMAPINFOHEADER bmpInfo;
 	BITMAPFILEHEADER bmpHeader;
-	int viewType;
 
 	// RGB to HSI
 	float** hueBuffer;
@@ -58,6 +60,12 @@ public:
 	// Grayscale
 	int** intensity;
 	int** intenNext;
+
+	// Histogram equlization
+	int intenHisto[256];
+	int intenEqual[256];
+	int intenSum[256];
+	int intenEquisum[256];
 	
 	// Bitscale
 	int** binary;
@@ -65,11 +73,10 @@ public:
 	int** randcolor;
 	int*** ccacolor;
 
-	int intenHisto[256];
-	int intenEqual[256];
-	int intenSum[256];
-	int intenEquisum[256];
-
+	// Scaling using interpolation
+	RGBQUAD** scaled;
+	int scaledHeight;
+	int scaledWidth;
 
 // Operations
 public:
@@ -119,6 +126,10 @@ public:
 	afx_msg void OnMotion3ss();
 	afx_msg void OnConnectivity4();
 	afx_msg void OnConnectivity8();
+	afx_msg void OnScalingBilinearinterpolation();
+	BYTE bilinear_interpolation(BYTE image[2][2], float EWweight, float NSweight);
+	afx_msg void OnScalingBsplineinterpolation();
+	BYTE bspline_interpolation(BYTE image[4][4], float EWweight, float NSweight);
 };
 
 #ifndef _DEBUG  // debug version in 201611225View.cpp
