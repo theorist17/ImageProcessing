@@ -34,5 +34,4 @@ c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\2016
 c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1757): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
 c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1797): warning C4101: 'two_minus_y': unreferenced local variable
 c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1797): warning C4101: 'two_minus_x': unreferenced local variable
-c:\users\theorist\documents\visual studio 2017\projects\201611225\201611225\201611225view.cpp(1799): warning C4101: 'pixel': unreferenced local variable
   201611225.vcxproj -> C:\Users\theorist\Documents\Visual Studio 2017\Projects\201611225\Debug\201611225.exe

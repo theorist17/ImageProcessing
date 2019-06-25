@@ -1682,8 +1682,8 @@ void CMy201611225View::OnScalingBilinearinterpolation()
 {
 	OnImageloadBmp();
 
-	float x_scale_factor = 2;
-	float y_scale_factor = 1;
+	float x_scale_factor = 4;
+	float y_scale_factor = 4;
 
 	scaledHeight = (imgHeight - 1) * y_scale_factor;
 	scaledWidth = (imgWidth - 1) * x_scale_factor;
@@ -1733,8 +1733,8 @@ void CMy201611225View::OnScalingBsplineinterpolation()
 {
 	OnImageloadBmp();
 
-	float x_scale_factor = 1;
-	float y_scale_factor = 0.5;
+	float x_scale_factor = 4;
+	float y_scale_factor = 4;
 
 	scaledHeight = (imgHeight - 3) * y_scale_factor;
 	scaledWidth = (imgWidth - 3) * x_scale_factor;
@@ -1759,13 +1759,13 @@ void CMy201611225View::OnScalingBsplineinterpolation()
 			ydiff = yinsource - intofy;
 
 			// red, green, blue are BYTE arrays to be passed for channel-specific interpolation
-			for (int i = -1; i < 3; i++)
+			for (int i = 0; i < 4; i++)
 			{
-				for (int j = -1; j < 3; j++)
+				for (int j = 0; j < 4; j++)
 				{
-					red[i+1][j+1] = rgbBuffer[intofy + i][intofx + j].rgbRed;
-					green[i+1][j+1] = rgbBuffer[intofy + i][intofx + j].rgbGreen;
-					blue[i+1][j+1] = rgbBuffer[intofy + i][intofx + j].rgbBlue;
+					red[i][j] = rgbBuffer[intofy + i - 1][intofx + j - 1].rgbRed;
+					green[i][j] = rgbBuffer[intofy + i - 1][intofx + j - 1].rgbGreen;
+					blue[i][j] = rgbBuffer[intofy + i - 1][intofx + j - 1].rgbBlue;
 				}
 			}
 
@@ -1796,7 +1796,6 @@ BYTE CMy201611225View::bspline_interpolation(BYTE image[4][4], float x, float y)
 	double one_minus_x, one_minus_y; // 1-x, 1-y
 	double two_minus_x, two_minus_y; // 2-x, 2-y
 	int i; // loop index
-	double pixel; // newly interpolated pixel value
 
 	// Do we even need to interpolate?
 	if ((x == 0.0) && (y == 0.0)) return image[1][1];
@@ -1821,26 +1820,22 @@ BYTE CMy201611225View::bspline_interpolation(BYTE image[4][4], float x, float y)
 
 		// Will there be vertical interpolation?
 		if (y == 0.0)
-		{
 			// No, return horizontally interpolated values
 			return (BYTE)(a0 * image[1][0] + a1 * image[1][1] + a2 * image[1][2] + a3 * image[1][3]);
-		}
-		else
-		{
-			// Yes, store horizontally interpolated values
-			for (i = 0; i < 4; i++)
-				column[i] = (double)(a0 * image[i][0] + a1 * image[i][1] + a2 * image[i][2] * a3 * image[i][3]);
-		}
 
-		y_plus_1 = y + 1.0;
-		one_minus_y = 1.0 - y;
-
-		a0 = ((-0.16666666 * y_plus_1 + 1.0) * y_plus_1 - 2.0) * y_plus_1 + 1.33333;
-		a1 = (0.5 * y - 1.0) * y * y + 0.66666667;
-		a2 = (0.5 * one_minus_y - 1.0) * one_minus_y * one_minus_y + 0.66666667;
-		a3 = 1.0 - a0 - a1 - a2;
-
-		return (BYTE)(a0 * column[0] + a1 * column[1] + a2 * column[2] + a3 * column[3]);
+		// Yes, store horizontally interpolated values
+		for (i = 0; i < 4; i++)
+			column[i] = (double)(a0 * image[i][0] + a1 * image[i][1] + a2 * image[i][2] + a3 * image[i][3]);
+		
 	}
-	return 0;
+
+	y_plus_1 = y + 1.0;
+	one_minus_y = 1.0 - y;
+
+	a0 = ((-0.16666666 * y_plus_1 + 1.0) * y_plus_1 - 2.0) * y_plus_1 + 1.33333;
+	a1 = (0.5 * y - 1.0) * y * y + 0.66666667;
+	a2 = (0.5 * one_minus_y - 1.0) * one_minus_y * one_minus_y + 0.66666667;
+	a3 = 1.0 - a0 - a1 - a2;
+
+	return  (BYTE)(a0 * column[0] + a1 * column[1] + a2 * column[2] + a3 * column[3]);
 }
